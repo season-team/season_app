@@ -1,0 +1,562 @@
+═══════════════════════════════════════════════════════════
+   FIREBASE CLOUD MESSAGING API V1 (NEW METHOD)
+   How to Send Notifications Using Latest FCM API
+═══════════════════════════════════════════════════════════
+
+⚠️  IMPORTANT: Legacy Cloud Messaging API is DEPRECATED!
+✅  You must use the new FCM HTTP v1 API
+
+══════════════════════════════════════════════════════════
+STEP 1: GET SERVICE ACCOUNT JSON FILE
+══════════════════════════════════════════════════════════
+
+1. Go to Firebase Console: https://console.firebase.google.com/
+2. Select your project
+3. Click ⚙️ (gear icon) → "Project settings"
+4. Go to "Service accounts" tab
+5. Click "Generate new private key"
+6. Click "Generate key" in the dialog
+7. A JSON file will be downloaded (save it securely!)
+
+📄 File name: something like "season-app-xxxxx-firebase-adminsdk-xxxxx.json"
+
+⚠️  SECURITY WARNING:
+- This file contains sensitive credentials
+- Never commit it to Git
+- Never share it publicly
+- Store it securely
+
+══════════════════════════════════════════════════════════
+STEP 2: GET YOUR PROJECT ID
+══════════════════════════════════════════════════════════
+
+In Firebase Console → Project Settings → General tab
+Look for: "Project ID"
+
+Example: season-app-12345
+
+══════════════════════════════════════════════════════════
+STEP 3: GENERATE OAUTH 2.0 ACCESS TOKEN
+══════════════════════════════════════════════════════════
+
+You need to generate an OAuth 2.0 access token from the service account.
+
+Option A: Use Google OAuth 2.0 Playground
+------------------------------------------------------------
+1. Go to: https://developers.google.com/oauthplayground/
+2. Click ⚙️ (settings icon) in top right
+3. Check "Use your own OAuth credentials"
+4. Paste Client ID and Client Secret from service account JSON
+5. In left panel, find "Firebase Cloud Messaging API v1"
+6. Select: https://www.googleapis.com/auth/firebase.messaging
+7. Click "Authorize APIs"
+8. Sign in with Google account
+9. Click "Exchange authorization code for tokens"
+10. Copy the "Access token"
+
+⏰ Token expires in 1 hour, you'll need to refresh it
+
+Option B: Use Programming Language (Recommended for Backend)
+------------------------------------------------------------
+See examples below for PHP, Node.js, Python
+
+══════════════════════════════════════════════════════════
+POSTMAN SETUP - SEND TO SPECIFIC USER
+══════════════════════════════════════════════════════════
+
+📍 METHOD: POST
+
+📍 URL:
+https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send
+
+Replace YOUR_PROJECT_ID with your actual Firebase project ID
+
+📍 HEADERS:
+------------------------------------------------------------
+Content-Type: application/json
+Authorization: Bearer YOUR_OAUTH_ACCESS_TOKEN
+------------------------------------------------------------
+
+📍 BODY (JSON):
+------------------------------------------------------------
+{
+  "message": {
+    "token": "USER_FCM_TOKEN_HERE",
+    "notification": {
+      "title": "Hello User!",
+      "body": "This is your notification message"
+    },
+    "data": {
+      "type": "message",
+      "user_id": "123",
+      "timestamp": "2025-10-26T10:30:00Z"
+    },
+    "android": {
+      "priority": "high",
+      "notification": {
+        "sound": "default",
+        "channel_id": "season_app_channel",
+        "color": "#092C4C"
+      }
+    },
+    "apns": {
+      "payload": {
+        "aps": {
+          "sound": "default",
+          "badge": 1
+        }
+      }
+    }
+  }
+}
+------------------------------------------------------------
+
+══════════════════════════════════════════════════════════
+POSTMAN SETUP - SEND TO TOPIC (ALL USERS)
+══════════════════════════════════════════════════════════
+
+📍 METHOD: POST
+
+📍 URL:
+https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send
+
+📍 HEADERS:
+------------------------------------------------------------
+Content-Type: application/json
+Authorization: Bearer YOUR_OAUTH_ACCESS_TOKEN
+------------------------------------------------------------
+
+📍 BODY (JSON):
+------------------------------------------------------------
+{
+  "message": {
+    "topic": "all_users",
+    "notification": {
+      "title": "Hello Everyone!",
+      "body": "This message is for all users"
+    },
+    "data": {
+      "type": "broadcast",
+      "message": "New update available!"
+    },
+    "android": {
+      "priority": "high",
+      "notification": {
+        "sound": "default",
+        "channel_id": "season_app_channel"
+      }
+    }
+  }
+}
+------------------------------------------------------------
+
+══════════════════════════════════════════════════════════
+EXAMPLE: COMPLETE NOTIFICATION WITH ALL OPTIONS
+══════════════════════════════════════════════════════════
+
+{
+  "message": {
+    "token": "dZx8Y2k3R_qMkKo...",
+    "notification": {
+      "title": "New Message from Ahmed",
+      "body": "Hello! How are you?",
+      "image": "https://example.com/image.png"
+    },
+    "data": {
+      "type": "new_message",
+      "sender_id": "456",
+      "sender_name": "Ahmed",
+      "message_id": "789",
+      "chat_id": "123",
+      "click_action": "OPEN_CHAT"
+    },
+    "android": {
+      "priority": "high",
+      "ttl": "3600s",
+      "notification": {
+        "sound": "default",
+        "channel_id": "season_app_channel",
+        "color": "#092C4C",
+        "icon": "ic_notification",
+        "tag": "chat_message",
+        "click_action": "OPEN_CHAT"
+      }
+    },
+    "apns": {
+      "headers": {
+        "apns-priority": "10"
+      },
+      "payload": {
+        "aps": {
+          "alert": {
+            "title": "New Message",
+            "body": "Hello! How are you?"
+          },
+          "sound": "default",
+          "badge": 1,
+          "category": "MESSAGE"
+        }
+      }
+    }
+  }
+}
+
+══════════════════════════════════════════════════════════
+PHP BACKEND IMPLEMENTATION
+══════════════════════════════════════════════════════════
+
+composer require google/apiclient
+
+<?php
+require 'vendor/autoload.php';
+
+use Google\Client;
+
+function getAccessToken() {
+    $client = new Client();
+    $client->setAuthConfig('path/to/service-account.json');
+    $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+    
+    $token = $client->fetchAccessTokenWithAssertion();
+    return $token['access_token'];
+}
+
+function sendNotification($fcmToken, $title, $body, $data = []) {
+    $projectId = 'YOUR_PROJECT_ID';
+    $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+    
+    $accessToken = getAccessToken();
+    
+    $message = [
+        'message' => [
+            'token' => $fcmToken,
+            'notification' => [
+                'title' => $title,
+                'body' => $body
+            ],
+            'data' => $data,
+            'android' => [
+                'priority' => 'high'
+            ]
+        ]
+    ];
+    
+    $headers = [
+        'Authorization: Bearer ' . $accessToken,
+        'Content-Type: application/json'
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($message));
+    
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode === 200) {
+        return json_decode($result, true);
+    } else {
+        throw new Exception("FCM Error: " . $result);
+    }
+}
+
+// Usage:
+try {
+    $response = sendNotification(
+        'USER_FCM_TOKEN',
+        'Hello User!',
+        'You have a new message',
+        ['type' => 'message', 'id' => '123']
+    );
+    echo "Notification sent successfully!";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+?>
+
+══════════════════════════════════════════════════════════
+NODE.JS BACKEND IMPLEMENTATION
+══════════════════════════════════════════════════════════
+
+npm install firebase-admin
+
+const admin = require('firebase-admin');
+const serviceAccount = require('./path/to/service-account.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+async function sendNotification(fcmToken, title, body, data = {}) {
+  const message = {
+    token: fcmToken,
+    notification: {
+      title: title,
+      body: body
+    },
+    data: data,
+    android: {
+      priority: 'high',
+      notification: {
+        sound: 'default',
+        channelId: 'season_app_channel'
+      }
+    },
+    apns: {
+      payload: {
+        aps: {
+          sound: 'default',
+          badge: 1
+        }
+      }
+    }
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+    console.log('Successfully sent message:', response);
+    return response;
+  } catch (error) {
+    console.log('Error sending message:', error);
+    throw error;
+  }
+}
+
+// Send to topic
+async function sendToTopic(topic, title, body) {
+  const message = {
+    topic: topic,
+    notification: {
+      title: title,
+      body: body
+    },
+    android: {
+      priority: 'high'
+    }
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+    console.log('Successfully sent to topic:', response);
+    return response;
+  } catch (error) {
+    console.log('Error sending to topic:', error);
+    throw error;
+  }
+}
+
+// Usage:
+sendNotification(
+  'USER_FCM_TOKEN',
+  'Hello User!',
+  'You have a new message',
+  { type: 'message', userId: '123' }
+);
+
+sendToTopic('all_users', 'Hello Everyone!', 'Broadcast message');
+
+══════════════════════════════════════════════════════════
+PYTHON BACKEND IMPLEMENTATION
+══════════════════════════════════════════════════════════
+
+pip install firebase-admin
+
+import firebase_admin
+from firebase_admin import credentials, messaging
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate('path/to/service-account.json')
+firebase_admin.initialize_app(cred)
+
+def send_notification(fcm_token, title, body, data=None):
+    message = messaging.Message(
+        token=fcm_token,
+        notification=messaging.Notification(
+            title=title,
+            body=body
+        ),
+        data=data or {},
+        android=messaging.AndroidConfig(
+            priority='high',
+            notification=messaging.AndroidNotification(
+                sound='default',
+                channel_id='season_app_channel',
+                color='#092C4C'
+            )
+        ),
+        apns=messaging.APNSConfig(
+            payload=messaging.APNSPayload(
+                aps=messaging.Aps(
+                    sound='default',
+                    badge=1
+                )
+            )
+        )
+    )
+    
+    try:
+        response = messaging.send(message)
+        print('Successfully sent message:', response)
+        return response
+    except Exception as e:
+        print('Error sending message:', e)
+        raise
+
+def send_to_topic(topic, title, body):
+    message = messaging.Message(
+        topic=topic,
+        notification=messaging.Notification(
+            title=title,
+            body=body
+        ),
+        android=messaging.AndroidConfig(priority='high')
+    )
+    
+    try:
+        response = messaging.send(message)
+        print('Successfully sent to topic:', response)
+        return response
+    except Exception as e:
+        print('Error sending to topic:', e)
+        raise
+
+# Usage:
+send_notification(
+    'USER_FCM_TOKEN',
+    'Hello User!',
+    'You have a new message',
+    {'type': 'message', 'user_id': '123'}
+)
+
+send_to_topic('all_users', 'Hello Everyone!', 'Broadcast message')
+
+══════════════════════════════════════════════════════════
+TESTING WITH CURL (COMMAND LINE)
+══════════════════════════════════════════════════════════
+
+# Get access token first (use one of the methods above)
+ACCESS_TOKEN="your_oauth_access_token_here"
+PROJECT_ID="your_project_id"
+FCM_TOKEN="user_fcm_token_here"
+
+curl -X POST \
+  "https://fcm.googleapis.com/v1/projects/$PROJECT_ID/messages:send" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": {
+      "token": "'$FCM_TOKEN'",
+      "notification": {
+        "title": "Test Notification",
+        "body": "This is a test message"
+      }
+    }
+  }'
+
+══════════════════════════════════════════════════════════
+SUCCESS RESPONSE EXAMPLE
+══════════════════════════════════════════════════════════
+
+{
+  "name": "projects/season-app/messages/0:1234567890123456%abc123"
+}
+
+══════════════════════════════════════════════════════════
+ERROR RESPONSES
+══════════════════════════════════════════════════════════
+
+401 Unauthorized:
+{
+  "error": {
+    "code": 401,
+    "message": "Request had invalid authentication credentials",
+    "status": "UNAUTHENTICATED"
+  }
+}
+→ Access token expired or invalid
+
+404 Not Found:
+{
+  "error": {
+    "code": 404,
+    "message": "Requested entity was not found",
+    "status": "NOT_FOUND"
+  }
+}
+→ Invalid token or project ID
+
+400 Bad Request:
+{
+  "error": {
+    "code": 400,
+    "message": "Invalid value at 'message.token'",
+    "status": "INVALID_ARGUMENT"
+  }
+}
+→ Invalid FCM token format
+
+══════════════════════════════════════════════════════════
+DIFFERENCES: LEGACY API vs V1 API
+══════════════════════════════════════════════════════════
+
+LEGACY API (DEPRECATED):
+- URL: https://fcm.googleapis.com/fcm/send
+- Auth: key=SERVER_KEY
+- Body: { "to": "token", "notification": {...} }
+
+NEW V1 API (CURRENT):
+- URL: https://fcm.googleapis.com/v1/projects/PROJECT_ID/messages:send
+- Auth: Bearer OAUTH_TOKEN
+- Body: { "message": { "token": "...", "notification": {...} } }
+
+══════════════════════════════════════════════════════════
+QUICK REFERENCE
+══════════════════════════════════════════════════════════
+
+1. Get service account JSON: Firebase Console → Settings → Service Accounts
+2. Get project ID: Firebase Console → Settings → General
+3. Generate access token: Use OAuth 2.0 Playground or backend SDK
+4. API endpoint: https://fcm.googleapis.com/v1/projects/PROJECT_ID/messages:send
+5. Authorization: Bearer ACCESS_TOKEN
+6. Message format: { "message": { "token": "...", ... } }
+
+══════════════════════════════════════════════════════════
+RECOMMENDED APPROACH
+══════════════════════════════════════════════════════════
+
+For Production:
+✅ Use Firebase Admin SDK in your backend (Node.js/Python/PHP)
+✅ Store service account JSON securely on server
+✅ Never expose service account in client apps
+✅ Admin SDK handles token refresh automatically
+
+For Testing:
+✅ Use OAuth 2.0 Playground to get access token
+✅ Test with Postman using the access token
+✅ Remember tokens expire in 1 hour
+
+══════════════════════════════════════════════════════════
+SECURITY BEST PRACTICES
+══════════════════════════════════════════════════════════
+
+1. ❌ NEVER commit service account JSON to Git
+2. ❌ NEVER expose service account in client apps
+3. ✅ Store service account securely on server only
+4. ✅ Use environment variables for sensitive data
+5. ✅ Implement rate limiting on your backend
+6. ✅ Validate FCM tokens before sending
+7. ✅ Log notification sending for debugging
+8. ✅ Handle expired/invalid tokens gracefully
+
+══════════════════════════════════════════════════════════
+
+🎉 You're now ready to use the NEW Firebase Cloud Messaging API!
+
+For more info:
+https://firebase.google.com/docs/cloud-messaging/migrate-v1
+https://firebase.google.com/docs/cloud-messaging/send-message
+

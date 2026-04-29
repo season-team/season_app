@@ -1,0 +1,380 @@
+{
+  "@@locale": "ar",
+  "appTitle": "تطبيق سيزون",
+  "welcome": "مرحبًا!",
+  "helloUser": "أهلاً يا {userName}!",
+  "welcomeText": "رفيقك الشامل في كل رحلة",
+  "startNow":"ابدأ الان",
+  "login":"تسجيل الدخول",
+  "welcomeLogin": "مرحباً بعودتك إلي SEASON",
+  "email":"البريد الالكتروني",
+  "password":"كلمة المرور",
+  "forgetPassword": "نسيت كلمة المرور؟",
+  "or": "أو",
+  "dontHaveAccount": "ليس لديك حساب؟",
+  "welcomeSignUp": "أنشئ حسابك وابدأ الآن!",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "firstName": "الاسم الأول",
+  "lastName": "الاسم الأخير",
+  "phone": "رقم الهاتف",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟",
+  "signUp": "سجل الآن",
+  "verifyMail": "تحقق من البريد الالكتروني",
+  "verifyMailBody": "لقد أرسلنا رمز تحقق مكوّن من 4 أرقام إلى بريدك الإلكتروني",
+  "verify": "تحقق",
+  "loading":"جاري التحميل",
+  "home": "الرئيسية",
+  "card": "البطاقة",
+  "group": "المجموعة",
+  "bag": "الحقيبة",
+  "profile": "الملف الشخصي",
+  "homePageContent": "مرحباً بك في الصفحة الرئيسية",
+  "cardPageContent": "إدارة بطاقاتك هنا",
+  "groupPageContent": "عرض وإدارة مجموعاتك",
+  "bagPageContent": "عناصر حقيبة التسوق الخاصة بك",
+  "profilePageContent": "عرض وتعديل ملفك الشخصي",
+  "enterEmailToReceiveResetCode": "أدخل بريدك الإلكتروني لتلقي رمز إعادة التعيين",
+  "sendResetCode": "إرسال رمز إعادة التعيين",
+  "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
+  "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+  "remaining": "متبقي",
+  "seconds": "ثانية",
+  "codeNotSent": "لم يصل الرمز؟",
+  "resendCode": "إعادة الإرسال",
+  "resetPassword": "إعادة تعيين كلمة المرور",
+  "enterNewPassword": "أدخل كلمة المرور الجديدة",
+  "confirmNewPasswordRequired": "تأكيد كلمة المرور الجديدة مطلوب",
+  "logout": "تسجيل الخروج",
+  "logoutConfirmation": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+  "cancel": "إلغاء",
+  "yes": "نعم",
+  "editProfile": "تعديل الملف الشخصي",
+  "updateProfile": "تحديث الملف الشخصي",
+  "name": "الاسم",
+  "nickname": "الاسم المستعار",
+  "birthDate": "تاريخ الميلاد",
+  "gender": "الجنس",
+  "male": "ذكر",
+  "female": "أنثى",
+  "city": "المدينة",
+  "currency": "العملة",
+  "coins": "النقاط",
+  "trips": "الرحلات",
+  "selectImage": "اختيار صورة",
+  "camera": "الكاميرا",
+  "gallery": "المعرض",
+  "changePhoto": "تغيير الصورة",
+  "applyAsServiceProvider": "التقدم كمزود خدمة",
+  "applyAsTrader": "التقدم كتاجر",
+  "profileUpdatedSuccessfully": "تم تحديث الملف الشخصي بنجاح",
+  "errorLoadingProfile": "خطأ في تحميل الملف الشخصي",
+  "errorUpdatingProfile": "خطأ في تحديث الملف الشخصي",
+  "pleaseEnterName": "الرجاء إدخال اسمك",
+  "saving": "جاري الحفظ",
+  "selectBirthDate": "اختر تاريخ الميلاد",
+  "personalInformation": "المعلومات الشخصية",
+  "accountStatistics": "إحصائيات الحساب",
+  "optional": "اختياري",
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "selectLanguage": "اختر اللغة",
+  "english": "الإنجليزية",
+  "arabic": "العربية",
+  "theme": "المظهر",
+  "darkMode": "الوضع الليلي",
+  "notifications": "الإشعارات",
+  "pushNotifications": "إشعارات التطبيق",
+  "emailNotifications": "إشعارات البريد الإلكتروني",
+  "about": "حول",
+  "aboutApp": "حول التطبيق",
+  "privacyPolicy": "سياسة الخصوصية",
+  "termsAndConditions": "الشروط والأحكام",
+  "version": "الإصدار",
+  "account": "الحساب",
+  "deleteAccount": "حذف الحساب",
+  "languageChanged": "تم تغيير اللغة بنجاح",
+  "general": "عام",
+  "preferences": "التفضيلات",
+  "dontGetLost": "عدم الضياع",
+  "trackYourGroup": "تتبع مجموعتك بسهولة وأمان",
+  "noGroupsYet": "لا توجد مجموعات",
+  "createNewGroup": "ابدأ بإنشاء مجموعة جديدة\nأو انضم لمجموعة موجودة",
+  "createGroup": "إنشاء مجموعة",
+  "joinGroup": "انضم لمجموعة",
+  "scanQrCode": "مسح رمز QR",
+  "enterCodeManually": "إدخال الكود يدوياً",
+  "placeQrCode": "ضع رمز QR داخل الإطار",
+  "scanningWillStart": "سيتم المسح تلقائياً",
+  "joinNow": "انضم الآن",
+  "orText": "أو",
+  "askForCode": "أو اطلب الكود من منشئ المجموعة",
+  "inviteCode": "كود الدعوة",
+  "enterInviteCode": "أدخل كود الدعوة للانضمام إلى المجموعة",
+  "pleaseEnterInviteCode": "الرجاء إدخال كود الدعوة",
+  "invalidCodeFormat": "كود غير صالح",
+  "groupName": "اسم المجموعة",
+  "groupNameExample": "مثال: رحلة دبي - العائلة",
+  "pleaseEnterGroupName": "الرجاء إدخال اسم المجموعة",
+  "description": "الوصف",
+  "descriptionOptional": "الوصف (اختياري)",
+  "addDescription": "أضف وصفاً للمجموعة",
+  "safetyRadius": "نطاق الأمان",
+  "meters": "متر",
+  "distanceAllowed": "المسافة المسموح بها قبل إرسال تنبيه",
+  "enableNotifications": "تفعيل الإشعارات",
+  "getInstantAlerts": "احصل على تنبيهات فورية",
+  "joinAGroup": "انضم إلى مجموعة",
+  "createNewGroupTitle": "إنشاء مجموعة جديدة",
+  "createGroupDescription": "أنشئ مجموعة لتتبع أصدقائك وعائلتك",
+  "groups": "مجموعة",
+  "alerts": "تنبيه",
+  "radius": "نطاق الأمان",
+  "owner": "مالك",
+  "member": "عضو",
+  "fromCenter": "من المركز",
+  "errorLoadingGroup": "خطأ في تحميل المجموعة",
+  "groupNotFound": "لم يتم العثور على المجموعة",
+  "errorDetails": "تفاصيل الخطأ:",
+  "endpoint": "نقطة النهاية:",
+  "retry": "إعادة المحاولة",
+  "goBack": "رجوع",
+  "leaveGroup": "مغادرة المجموعة",
+  "deleteGroup": "حذف المجموعة",
+  "inviteCodeTitle": "كود الدعوة",
+  "copy": "نسخ",
+  "copied": "تم النسخ!",
+  "close": "إغلاق",
+  "sosEmergency": "طوارئ SOS",
+  "sosAlert": "🚨 إشارة SOS - طوارئ",
+  "needHelp": "أحتاج المساعدة!",
+  "joining": "جاري الانضمام...",
+  "create": "إنشاء",
+  "scanQr": "مسح QR",
+  "sosAlerts": "تنبيهات الطوارئ",
+  "emergencyAlerts": "🚨 تنبيهات الطوارئ",
+  "activeAlerts": "التنبيهات النشطة",
+  "noActiveAlerts": "لا توجد تنبيهات نشطة",
+  "noAlertsMessage": "ممتاز! لا توجد تنبيهات طوارئ في الوقت الحالي.\nمجموعتك آمنة.",
+  "alertFrom": "تنبيه من",
+  "alertTime": "وقت التنبيه",
+  "alertMessage": "الرسالة",
+  "resolveAlert": "حل التنبيه",
+  "markAsResolved": "وضع علامة كمحلول",
+  "alertResolved": "تم حل التنبيه",
+  "alertResolvedMessage": "تم حل تنبيه الطوارئ",
+  "viewOnMap": "عرض على الخريطة",
+  "location": "الموقع",
+  "distance": "المسافة",
+  "ago": "منذ",
+  "minutes": "دقائق",
+  "hours": "ساعات",
+  "days": "أيام",
+  "mapView": "عرض الخريطة",
+  "listView": "عرض القائمة",
+  "emergencyLocation": "موقع الطوارئ",
+  "tapToResolve": "اضغط لحل هذا التنبيه",
+  "confirmResolve": "حل التنبيه؟",
+  "confirmResolveMessage": "هل أنت متأكد من أنك تريد وضع علامة على هذا التنبيه كمحلول؟",
+  "resolved": "محلول",
+  "pending": "معلق",
+  "justNow": "الآن",
+  "getDirections": "الحصول على الاتجاهات",
+  "directionsToAlert": "الاتجاهات إلى موقع الطوارئ",
+  "openInMaps": "فتح في الخرائط",
+  "directionsDescription": "احصل على الاتجاهات إلى موقع الطوارئ هذا باستخدام تطبيق الخرائط المفضل لديك",
+  "mapsAppNotFound": "لم يتم العثور على تطبيق خرائط على جهازك",
+  "directions": "الاتجاهات",
+  "points": "نقاط",
+  "loyaltyCard": "بطاقة الولاء",
+  "errorLoadingCardData": "خطأ في تحميل بيانات البطاقة",
+  "loyaltyPoints": "نقاط الولاء",
+  "howToUseCard": "كيف تستخدم البطاقة",
+  "qrCodeUsage": "أستخدم رمز الاستجابة السريعة QR للربط مع الأجهزة ضمن المجموعات الأمنة",
+  "collectPoints": "أجمع نقاط الولاء عند التصفح و أستخدام خدمات الشركاء",
+  "exclusiveRewards": "أحصل علي مكافآت حصرية",
+  "readPrivacyPolicy": "اقرأ سياسة الخصوصية الخاصة بنا",
+  "termsOfService": "شروط الخدمة",
+  "deleteAccountWarning": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بياناتك نهائياً."
+  ,"newService":"خدمة جديدة"
+  ,"editService":"تعديل الخدمة"
+  ,"serviceType":"نوع الخدمة"
+  ,"chooseFile":"اختر ملف"
+  ,"commercialRegister":"السجل التجاري (PDF)"
+  ,"selectOnMap":"اختر على الخريطة"
+  ,"confirm":"تأكيد"
+  ,"details":"التفاصيل"
+  ,"status":"الحالة"
+  ,"latitude":"خط العرض"
+  ,"longitude":"خط الطول"
+  ,"createService":"إنشاء خدمة"
+  ,"address":"العنوان"
+  ,"edit":"تعديل"
+  ,"delete":"حذف"
+  ,"serviceDetails":"تفاصيل الخدمة"
+  ,"yourServices":"خدماتك"
+  ,"noServicesYet":"لا توجد خدمات حتى الآن"
+  ,"openRegister":"فتح السجل التجاري"
+  ,"selectLocation":"اختر الموقع"
+  ,"areYouSureDelete":"حذف الخدمة؟"
+  ,"areYouSureDeleteMessage":"سيتم حذف الخدمة نهائيًا."
+  ,"update":"تحديث"
+  ,"serviceName":"اسم الخدمة"
+  ,"enable":"تفعيل"
+  ,"disable":"تعطيل"
+  ,"deletePermanently":"حذف نهائي"
+  ,"serviceImages":"صور الخدمة"
+  ,"myServices":"خدماتي"
+  ,"bagTitle":"حقيبة السفر"
+  ,"bagSubtitle":"شنطة الشحن الرئيسية"
+  ,"bagTotalWeightLabel":"الوزن الإجمالي"
+  ,"bagWeight":"{current} / {max} كجم"
+  ,"@bagWeight":{"placeholders":{"current":{"type":"String"},"max":{"type":"String"}}}
+  ,"bagAddItemButton":"إضافة عنصر"
+  ,"bagAISuggestionsButton":"اقتراحات الذكاء الاصطناعي"
+  ,"bagRemindersTitle":"التذكيرات"
+  ,"bagRemindersActiveCount":"{count} مفعلة"
+  ,"@bagRemindersActiveCount":{"placeholders":{"count":{"type":"int"}}}
+  ,"bagAddReminderButton":"إضافة تذكير"
+  ,"bagRemindersEmptyTitle":"لا توجد تذكيرات بعد"
+  ,"bagRemindersEmptyDescription":"اضغط على \"إضافة تذكير\" لإنشاء أول تذكير لرحلتك."
+  ,"bagEmptyTitle":"الحقيبة فارغة"
+  ,"bagEmptyDescription":"ابدأ بإضافة أغراضك للاستعداد للسفر."
+  ,"bagTipsTitle":"نصائح التعبئة"
+  ,"bagTip1":"ضع الأشياء الثقيلة في أسفل الحقيبة."
+  ,"bagTip2":"لف الملابس بدلاً من طيها لتوفير المساحة."
+  ,"bagTip3":"احتفظ بالأشياء القيمة في حقيبة اليد."
+  ,"bagTip4":"تأكد من الوزن المسموح به لدى شركة الطيران."
+  ,"bagDeleteReminderTitle":"حذف التذكير؟"
+  ,"bagDeleteReminderMessage":"هل أنت متأكد من حذف هذا التذكير؟"
+  ,"bagDeleteCancel":"إلغاء"
+  ,"bagDeleteConfirm":"حذف"
+  ,"bagDeleteSuccess":"تم حذف التذكير بنجاح."
+  ,"bagDeleteItemTitle":"إزالة العنصر؟"
+  ,"bagDeleteItemMessage":"هل أنت متأكد من إزالة هذا العنصر من حقيبتك؟"
+  ,"bagDeleteItemSuccess":"تم إزالة العنصر بنجاح."
+  ,"bagDeleteItemError":"فشل إزالة العنصر. يرجى المحاولة مرة أخرى."
+  ,"bagAddItemSuccess":"تم إضافة العنصر بنجاح."
+  ,"bagAddItemError":"فشل إضافة العنصر. يرجى المحاولة مرة أخرى."
+  ,"bagUpdateQuantitySuccess":"تم تحديث الكمية بنجاح."
+  ,"bagUpdateQuantityError":"فشل تحديث الكمية. يرجى المحاولة مرة أخرى."
+  ,"bagTypesTitle":"أنواع الحقائب"
+  ,"bagCategoriesTitle":"التصنيفات"
+  ,"bagItemsTitle":"عناصر مقترحة"
+  ,"bagItemsEmpty":"لا توجد عناصر متاحة لهذا التصنيف حالياً."
+  ,"bagItemsError":"تعذر تحميل عناصر هذا التصنيف."
+  ,"bagAddItemTitle":"إضافة عنصر"
+  ,"bagSelectCategory":"التصنيف"
+  ,"bagSelectCategoryPlaceholder":"اختر التصنيف"
+  ,"bagSelectItem":"العنصر"
+  ,"bagSelectItemPlaceholder":"اختر العنصر"
+  ,"bagQuantityLabel":"الكمية"
+  ,"bagApproxWeight":"الوزن التقريبي: {weight} كجم"
+  ,"@bagApproxWeight":{"placeholders":{"weight":{"type":"String"}}}
+  ,"bagAddItemSubmit":"إضافة إلى الحقيبة"
+  ,"bagNoCategories":"لا توجد تصنيفات متاحة حالياً."
+  ,"bagNoItems":"لا توجد عناصر متاحة لهذا التصنيف."
+  ,"bagLoadingItems":"جاري تحميل العناصر..."
+  ,"bagEditMaxWeight":"تعديل الحد الأقصى للوزن"
+  ,"bagMaxWeightLabel":"الحد الأقصى للوزن"
+  ,"bagMaxWeightPlaceholder":"أدخل الحد الأقصى للوزن"
+  ,"bagMaxWeightRequired":"الحد الأقصى للوزن مطلوب"
+  ,"bagMaxWeightInvalid":"يرجى إدخال وزن صحيح"
+  ,"bagWeightUnitLabel":"وحدة الوزن"
+  ,"bagSelectWeightUnit":"اختر وحدة الوزن"
+  ,"bagMaxWeightUpdated":"تم تحديث الحد الأقصى للوزن بنجاح"
+  ,"bagWeightUnitKg":"كجم"
+  ,"bagMaxWeightInfo":"اضبط الحد الأقصى للوزن لحقيبتك. يتم قياس الوزن دائماً بالكيلوجرام."
+  ,"save":"حفظ"
+  ,"reminderLoadError":"تعذر تحديث التذكيرات، يرجى المحاولة مرة أخرى."
+  ,"reminderAddTitle":"إضافة تذكير"
+  ,"reminderEditTitle":"تعديل التذكير"
+  ,"reminderSubtitle":"حدد تفاصيل التذكير حتى لا تفوت أي مهمة سفر مهمة."
+  ,"reminderTitleLabel":"عنوان التذكير"
+  ,"reminderTitlePlaceholder":"مثال: جهز جواز السفر"
+  ,"reminderTitleValidation":"يرجى إدخال عنوان التذكير."
+  ,"reminderDateLabel":"التاريخ"
+  ,"reminderDatePlaceholder":"اختر التاريخ"
+  ,"reminderDateValidation":"يرجى اختيار التاريخ."
+  ,"reminderTimeLabel":"الوقت"
+  ,"reminderTimePlaceholder":"اختر الوقت"
+  ,"reminderTimeValidation":"يرجى اختيار الوقت."
+  ,"reminderRecurrenceLabel":"التكرار"
+  ,"reminderRecurrenceOnce":"مرة واحدة"
+  ,"reminderRecurrenceDaily":"يومي"
+  ,"reminderRecurrenceWeekly":"أسبوعي"
+  ,"reminderRecurrenceCustom":"مخصص"
+  ,"reminderNotesLabel":"ملاحظات (اختياري)"
+  ,"reminderNotesPlaceholder":"أضف أي ملاحظات إضافية تساعدك على التذكر."
+  ,"reminderAttachmentLabel":"مرفق (اختياري)"
+  ,"reminderAttachmentAdd":"إضافة صورة"
+  ,"reminderAddButton":"حفظ التذكير"
+  ,"reminderUpdateButton":"تحديث التذكير"
+  ,"reminderCreateSuccess":"تم إنشاء التذكير بنجاح."
+  ,"reminderUpdateSuccess":"تم تحديث التذكير بنجاح."
+  ,"reminderSaveError":"حدث خطأ أثناء حفظ التذكير."
+  ,"imagePickerGallery":"اختيار من المعرض"
+  ,"imagePickerCamera":"استخدام الكاميرا"
+  ,"emergencyNumbers":"أرقام الطوارئ"
+  ,"emergencySubtitle":"وصول سريع لخدمات الطوارئ"
+  ,"emergencyFire":"الإطفاء"
+  ,"emergencyPolice":"الشرطة"
+  ,"emergencyAmbulance":"الإسعاف"
+  ,"emergencyEmbassy":"السفارة"
+  ,"emergencyError":"فشل تحميل أرقام الطوارئ"
+  ,"emergencyErrorDescription":"يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى"
+  ,"emergencyQuickAccess":"اضغط لعرض جهات اتصال الطوارئ"
+  ,"country":"الدولة"
+  ,"required":"مطلوب"
+  ,"currencyConverter":"محول العملة"
+  ,"currencyConverterSubtitle":"تحويل العملات فوراً"
+  ,"currencyFrom":"من"
+  ,"currencyTo":"إلى"
+  ,"currencyAmount":"المبلغ"
+  ,"currencyAmountPlaceholder":"أدخل المبلغ"
+  ,"currencyAmountRequired":"يرجى إدخال المبلغ"
+  ,"currencyAmountInvalid":"يرجى إدخال مبلغ صحيح"
+  ,"currencyConvert":"تحويل"
+  ,"currencyRate":"السعر"
+  ,"currencyConvertedAmount":"المبلغ المحول"
+  ,"currencyExchangeRate":"سعر الصرف الإرشادي"
+  ,"vendorServices":"خدمات البائعين"
+  ,"viewAll":"عرض الكل"
+  ,"digitalDirectory":"الدليل الرقمي"
+  ,"geographicDirectory":"الدليل الجغرافي"
+  ,"noCategoriesAvailable":"لا توجد تصنيفات متاحة"
+  ,"noAppsAvailable":"لا توجد تطبيقات متاحة"
+  ,"events":"الفعاليات"
+  ,"yourLoyaltyPoints":"نقاط الولاء الخاصة بك"
+  ,"availablePoints":"نقطة متاحة"
+  ,"redeemSoon":"استبدل قريبًا"
+  ,"showPointsCard":"عرض بطاقة النقاط"
+  ,"onboardingSkip":"تخطي"
+  ,"onboardingNext":"التالي"
+  ,"onboardingStart":"أبدأ الاستكشاف"
+  ,"onboardingTitle1":"خدمات الدليل"
+  ,"onboardingDescription1":"كل ما تحتاجه في مكان واحد"
+  ,"onboardingTitle2":"أدوات السفر الذكية"
+  ,"onboardingDescription2":"خطط رحلتك بسهولة مع حقيبة السفر الذكية، دليل الطوارئ، والفعاليات المحلية"
+  ,"onboardingTitle3":"مكافآت ونقاط ولاء"
+  ,"onboardingDescription3":"أكسب نقاط مع كل حجز واستبدلها بخصومات حصرية ومزايا فريدة"
+  ,"connectionErrorTitle":"خطأ في الاتصال"
+  ,"connectionErrorMessage":"تعذر الاتصال بالخادم.\nيرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى."
+  ,"retry":"إعادة المحاولة"
+  ,"retrying":"جاري إعادة المحاولة..."
+  ,"backToHome":"العودة للرئيسية"
+  ,"connectionFailed":"فشل الاتصال. يرجى المحاولة مرة أخرى لاحقاً."
+  ,"weightExceeded":"تم تجاوز الوزن المسموح"
+  ,"weightExceededMessage":"سيتم تجاوز الوزن الأقصى المسموح به ({maxWeight} كجم). الوزن الحالي: {currentWeight} كجم. وزن العنصر: {itemWeight} كجم."
+  ,"@weightExceededMessage":{
+    "placeholders":{
+      "maxWeight":{"type":"String"},
+      "currentWeight":{"type":"String"},
+      "itemWeight":{"type":"String"}
+    }
+  }
+  ,"support":"الدعم الفني"
+  ,"contactUs":"تواصل معي"
+  ,"reportIssue":"الإبلاغ عن مشكلة"
+  ,"contactUsSubtitle":"أبلغ عن المشاكل أو تواصل مع الدعم عبر واتساب"
+  ,"whatsappNotInstalled":"واتساب غير مثبت على جهازك"
+}

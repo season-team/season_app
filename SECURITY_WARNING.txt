@@ -1,0 +1,167 @@
+═══════════════════════════════════════════════════════════
+   ⚠️  CRITICAL SECURITY WARNING ⚠️
+═══════════════════════════════════════════════════════════
+
+🚨 YOUR FIREBASE SERVICE ACCOUNT FILE HAS BEEN EXPOSED! 🚨
+
+The file: season-9ede3-firebase-adminsdk-fbsvc-c1b9e2f2e7.json
+Contains sensitive credentials that should NEVER be in your repository!
+
+══════════════════════════════════════════════════════════
+IMMEDIATE ACTIONS REQUIRED
+══════════════════════════════════════════════════════════
+
+1. REMOVE FILE FROM GIT HISTORY
+   Run these commands:
+   
+   git filter-branch --force --index-filter \
+   "git rm --cached --ignore-unmatch season-9ede3-firebase-adminsdk-fbsvc-c1b9e2f2e7.json" \
+   --prune-empty --tag-name-filter cat -- --all
+   
+   git push origin --force --all
+
+2. REVOKE THE COMPROMISED SERVICE ACCOUNT
+   
+   a. Go to: https://console.firebase.google.com/
+   b. Select your project: season-9ede3
+   c. Click ⚙️ → Project settings
+   d. Go to "Service accounts" tab
+   e. Click "Manage service account permissions"
+   f. Find the compromised account
+   g. Click "Delete" or "Disable"
+
+3. GENERATE NEW SERVICE ACCOUNT
+   
+   a. In Firebase Console → Service accounts
+   b. Click "Generate new private key"
+   c. Click "Generate key"
+   d. Save the new JSON file
+   e. DO NOT add to Git!
+   f. Place in: storage/app/firebase/ (Laravel backend)
+
+4. MOVE FILE TO SECURE LOCATION
+   
+   NEVER keep service account in project root!
+   
+   For Laravel backend:
+   - Move to: /storage/app/firebase/
+   - Update .env: FIREBASE_CREDENTIALS=firebase/your-new-file.json
+   
+   For local development:
+   - Keep in a secure folder outside project
+   - Reference by absolute path in .env
+
+5. UPDATE .GITIGNORE
+   
+   ✅ Already added to .gitignore (check the file)
+   
+   Make sure these patterns exist:
+   *firebase-adminsdk*.json
+   google-services.json
+   GoogleService-Info.plist
+
+6. VERIFY NOTHING IS COMMITTED
+   
+   git status
+   
+   The service account file should NOT appear in changes!
+
+══════════════════════════════════════════════════════════
+WHY IS THIS CRITICAL?
+══════════════════════════════════════════════════════════
+
+The service account JSON contains:
+- Private key for authentication
+- Full access to your Firebase project
+- Ability to send notifications to ALL users
+- Ability to access Firebase database
+- Ability to modify user data
+
+If someone gets this file, they can:
+❌ Send spam notifications to your users
+❌ Access your Firebase data
+❌ Delete your Firebase resources
+❌ Impersonate your backend
+❌ Cause financial damage
+
+══════════════════════════════════════════════════════════
+BEST PRACTICES FOR SERVICE ACCOUNTS
+══════════════════════════════════════════════════════════
+
+✅ ALWAYS store in secure location
+✅ NEVER commit to Git
+✅ Use environment variables for paths
+✅ Restrict permissions (principle of least privilege)
+✅ Rotate keys regularly
+✅ Monitor usage in Firebase Console
+✅ Use different accounts for dev/prod
+✅ Keep backups in secure vault
+
+❌ NEVER expose in public repositories
+❌ NEVER share in chat/email
+❌ NEVER hardcode paths
+❌ NEVER use in client-side apps
+❌ NEVER log the file contents
+
+══════════════════════════════════════════════════════════
+PROPER FILE STRUCTURE
+══════════════════════════════════════════════════════════
+
+Project Root/
+├── storage/
+│   └── app/
+│       └── firebase/              ← Service account here
+│           └── service-account.json
+├── .env                           ← Reference path here
+├── .gitignore                     ← Ignore pattern here
+└── app/
+    └── Services/
+        └── FirebaseService.php    ← Use path from .env
+
+.env file:
+FIREBASE_CREDENTIALS=firebase/service-account.json
+FIREBASE_PROJECT_ID=season-9ede3
+
+.gitignore:
+*firebase-adminsdk*.json
+google-services.json
+
+══════════════════════════════════════════════════════════
+CHECKLIST
+══════════════════════════════════════════════════════════
+
+□ Remove file from Git history
+□ Revoke compromised service account
+□ Generate new service account
+□ Move file to secure location (storage/app/firebase/)
+□ Update .env with new path
+□ Verify .gitignore includes the pattern
+□ Test that Git doesn't track the file
+□ Update backend code to use new file
+□ Test notifications still work
+□ Monitor Firebase Console for unusual activity
+
+══════════════════════════════════════════════════════════
+AFTER FIXING
+══════════════════════════════════════════════════════════
+
+1. Delete the exposed file from project root:
+   rm season-9ede3-firebase-adminsdk-fbsvc-c1b9e2f2e7.json
+
+2. Place new file in secure location
+
+3. Update your code to reference the new location
+
+4. Test everything works
+
+5. Commit the changes (without the service account!)
+   git add .gitignore
+   git commit -m "Security: Update .gitignore for Firebase credentials"
+   git push
+
+══════════════════════════════════════════════════════════
+
+⚠️  TAKE THESE ACTIONS IMMEDIATELY TO SECURE YOUR PROJECT!
+
+Questions? Check the Laravel implementation guide for proper setup.
+

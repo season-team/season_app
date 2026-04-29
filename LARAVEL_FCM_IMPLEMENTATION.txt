@@ -1,0 +1,822 @@
+═══════════════════════════════════════════════════════════
+   LARAVEL - FIREBASE CLOUD MESSAGING IMPLEMENTATION
+   Complete Guide for Sending Notifications from Backend
+═══════════════════════════════════════════════════════════
+
+══════════════════════════════════════════════════════════
+STEP 1: INSTALL REQUIRED PACKAGES
+══════════════════════════════════════════════════════════
+
+composer require google/apiclient
+
+══════════════════════════════════════════════════════════
+STEP 2: SETUP SERVICE ACCOUNT FILE
+══════════════════════════════════════════════════════════
+
+1. Place your service account JSON file in Laravel:
+   storage/app/firebase/season-9ede3-firebase-adminsdk-fbsvc-c1b9e2f2e7.json
+
+2. Add to .env:
+   FIREBASE_CREDENTIALS=firebase/season-9ede3-firebase-adminsdk-fbsvc-c1b9e2f2e7.json
+   FIREBASE_PROJECT_ID=season-9ede3
+
+3. Add to .gitignore:
+   /storage/app/firebase/*.json
+
+══════════════════════════════════════════════════════════
+STEP 3: CREATE FIREBASE SERVICE CLASS
+══════════════════════════════════════════════════════════
+
+File: app/Services/FirebaseService.php
+
+<?php
+
+namespace App\Services;
+
+use Google\Client as GoogleClient;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+
+class FirebaseService
+{
+    protected $projectId;
+    protected $credentialsPath;
+
+    public function __construct()
+    {
+        $this->projectId = env('FIREBASE_PROJECT_ID');
+        $this->credentialsPath = storage_path('app/' . env('FIREBASE_CREDENTIALS'));
+    }
+
+    /**
+     * Get OAuth 2.0 Access Token (cached for 50 minutes)
+     */
+    protected function getAccessToken()
+    {
+        return Cache::remember('firebase_access_token', 50 * 60, function () {
+            try {
+                $client = new GoogleClient();
+                $client->setAuthConfig($this->credentialsPath);
+                $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+                
+                $token = $client->fetchAccessTokenWithAssertion();
+                
+                if (isset($token['error'])) {
+                    throw new \Exception('Error fetching access token: ' . $token['error']);
+                }
+                
+                return $token['access_token'];
+            } catch (\Exception $e) {
+                Log::error('Firebase Access Token Error: ' . $e->getMessage());
+                throw $e;
+            }
+        });
+    }
+
+    /**
+     * Send notification to specific device token
+     */
+    public function sendToDevice($fcmToken, $title, $body, $data = [])
+    {
+        $message = [
+            'message' => [
+                'token' => $fcmToken,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body,
+                ],
+                'data' => $this->convertDataToStrings($data),
+                'android' => [
+                    'priority' => 'high',
+                    'notification' => [
+                        'sound' => 'default',
+                        'channel_id' => 'season_app_channel',
+                        'color' => '#092C4C',
+                    ]
+                ],
+                'apns' => [
+                    'payload' => [
+                        'aps' => [
+                            'sound' => 'default',
+                            'badge' => 1,
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        return $this->sendMessage($message);
+    }
+
+    /**
+     * Send notification to topic (all subscribed users)
+     */
+    public function sendToTopic($topic, $title, $body, $data = [])
+    {
+        $message = [
+            'message' => [
+                'topic' => $topic,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body,
+                ],
+                'data' => $this->convertDataToStrings($data),
+                'android' => [
+                    'priority' => 'high',
+                    'notification' => [
+                        'sound' => 'default',
+                        'channel_id' => 'season_app_channel',
+                    ]
+                ],
+            ]
+        ];
+
+        return $this->sendMessage($message);
+    }
+
+    /**
+     * Send notification to all users
+     */
+    public function sendToAllUsers($title, $body, $data = [])
+    {
+        return $this->sendToTopic('all_users', $title, $body, $data);
+    }
+
+    /**
+     * Send notification to multiple devices
+     */
+    public function sendToMultipleDevices($fcmTokens, $title, $body, $data = [])
+    {
+        $responses = [];
+        
+        foreach ($fcmTokens as $token) {
+            try {
+                $response = $this->sendToDevice($token, $title, $body, $data);
+                $responses[] = [
+                    'token' => $token,
+                    'success' => isset($response['name']),
+                    'response' => $response
+                ];
+            } catch (\Exception $e) {
+                $responses[] = [
+                    'token' => $token,
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+        
+        return $responses;
+    }
+
+    /**
+     * Send custom message with full control
+     */
+    public function sendCustomMessage($message)
+    {
+        return $this->sendMessage(['message' => $message]);
+    }
+
+    /**
+     * Send message to Firebase
+     */
+    protected function sendMessage($payload)
+    {
+        try {
+            $accessToken = $this->getAccessToken();
+            $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ])->post($url, $payload);
+
+            if ($response->successful()) {
+                Log::info('FCM Notification sent successfully', [
+                    'response' => $response->json()
+                ]);
+                return $response->json();
+            } else {
+                Log::error('FCM Notification failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                throw new \Exception('FCM Error: ' . $response->body());
+            }
+        } catch (\Exception $e) {
+            Log::error('FCM Send Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Convert data array values to strings (FCM requirement)
+     */
+    protected function convertDataToStrings($data)
+    {
+        return array_map(function ($value) {
+            return is_array($value) ? json_encode($value) : (string) $value;
+        }, $data);
+    }
+
+    /**
+     * Validate FCM token format
+     */
+    public function isValidToken($token)
+    {
+        return is_string($token) && strlen($token) > 100;
+    }
+}
+
+══════════════════════════════════════════════════════════
+STEP 4: REGISTER SERVICE IN LARAVEL
+══════════════════════════════════════════════════════════
+
+File: app/Providers/AppServiceProvider.php
+
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use App\Services\FirebaseService;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        $this->app->singleton(FirebaseService::class, function ($app) {
+            return new FirebaseService();
+        });
+    }
+
+    public function boot()
+    {
+        //
+    }
+}
+
+══════════════════════════════════════════════════════════
+STEP 5: USAGE IN CONTROLLERS
+══════════════════════════════════════════════════════════
+
+Example: Sending notification after user login
+
+File: app/Http/Controllers/AuthController.php
+
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Services\FirebaseService;
+use Illuminate\Http\Request;
+
+class AuthController extends Controller
+{
+    protected $firebaseService;
+
+    public function __construct(FirebaseService $firebaseService)
+    {
+        $this->firebaseService = $firebaseService;
+    }
+
+    public function login(Request $request)
+    {
+        // Your login logic here...
+        $user = auth()->user();
+
+        // Update FCM token in database
+        if ($request->has('notification_token')) {
+            $user->fcm_token = $request->notification_token;
+            $user->save();
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Login successful',
+            'data' => [
+                'token' => $token,
+                'user' => $user
+            ]
+        ]);
+    }
+
+    public function sendWelcomeNotification($userId)
+    {
+        $user = User::find($userId);
+        
+        if ($user && $user->fcm_token) {
+            try {
+                $this->firebaseService->sendToDevice(
+                    $user->fcm_token,
+                    'Welcome Back!',
+                    'Nice to see you again, ' . $user->name,
+                    [
+                        'type' => 'welcome',
+                        'user_id' => (string) $user->id,
+                        'timestamp' => now()->toIso8601String()
+                    ]
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send welcome notification: ' . $e->getMessage());
+            }
+        }
+    }
+}
+
+══════════════════════════════════════════════════════════
+STEP 6: CREATE NOTIFICATION CONTROLLER
+══════════════════════════════════════════════════════════
+
+File: app/Http/Controllers/NotificationController.php
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\FirebaseService;
+use Illuminate\Http\Request;
+use App\Models\User;
+
+class NotificationController extends Controller
+{
+    protected $firebaseService;
+
+    public function __construct(FirebaseService $firebaseService)
+    {
+        $this->firebaseService = $firebaseService;
+    }
+
+    /**
+     * Send notification to specific user
+     */
+    public function sendToUser(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'title' => 'required|string',
+            'body' => 'required|string',
+            'data' => 'sometimes|array'
+        ]);
+
+        $user = User::find($request->user_id);
+
+        if (!$user->fcm_token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User has no FCM token'
+            ], 400);
+        }
+
+        try {
+            $response = $this->firebaseService->sendToDevice(
+                $user->fcm_token,
+                $request->title,
+                $request->body,
+                $request->data ?? []
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification sent successfully',
+                'response' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send notification',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Send notification to all users
+     */
+    public function sendToAll(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'body' => 'required|string',
+            'data' => 'sometimes|array'
+        ]);
+
+        try {
+            $response = $this->firebaseService->sendToAllUsers(
+                $request->title,
+                $request->body,
+                $request->data ?? []
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification sent to all users',
+                'response' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send notification',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Send notification to multiple specific users
+     */
+    public function sendToMultiple(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+            'title' => 'required|string',
+            'body' => 'required|string',
+            'data' => 'sometimes|array'
+        ]);
+
+        $users = User::whereIn('id', $request->user_ids)
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->toArray();
+
+        if (empty($users)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No valid FCM tokens found'
+            ], 400);
+        }
+
+        try {
+            $responses = $this->firebaseService->sendToMultipleDevices(
+                $users,
+                $request->title,
+                $request->body,
+                $request->data ?? []
+            );
+
+            $successCount = collect($responses)->where('success', true)->count();
+            $failureCount = collect($responses)->where('success', false)->count();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Sent to {$successCount} users, {$failureCount} failed",
+                'details' => $responses
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send notifications',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+}
+
+══════════════════════════════════════════════════════════
+STEP 7: ADD ROUTES
+══════════════════════════════════════════════════════════
+
+File: routes/api.php
+
+<?php
+
+use App\Http\Controllers\NotificationController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // Send notification to specific user
+    Route::post('/notifications/send-to-user', [NotificationController::class, 'sendToUser']);
+    
+    // Send notification to all users
+    Route::post('/notifications/send-to-all', [NotificationController::class, 'sendToAll']);
+    
+    // Send notification to multiple users
+    Route::post('/notifications/send-to-multiple', [NotificationController::class, 'sendToMultiple']);
+});
+
+══════════════════════════════════════════════════════════
+STEP 8: CREATE DATABASE MIGRATION FOR FCM TOKENS
+══════════════════════════════════════════════════════════
+
+php artisan make:migration add_fcm_token_to_users_table
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->text('fcm_token')->nullable()->after('remember_token');
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('fcm_token');
+        });
+    }
+};
+
+Run: php artisan migrate
+
+══════════════════════════════════════════════════════════
+STEP 9: UPDATE USER MODEL
+══════════════════════════════════════════════════════════
+
+File: app/Models/User.php
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'fcm_token', // Add this
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'fcm_token', // Hide from API responses
+    ];
+}
+
+══════════════════════════════════════════════════════════
+USAGE EXAMPLES
+══════════════════════════════════════════════════════════
+
+1. SEND NOTIFICATION WHEN NEW MESSAGE ARRIVES
+------------------------------------------------------------
+use App\Services\FirebaseService;
+
+class MessageController extends Controller
+{
+    public function sendMessage(Request $request, FirebaseService $firebase)
+    {
+        // Save message to database
+        $message = Message::create($request->all());
+        
+        // Send notification to recipient
+        $recipient = User::find($message->recipient_id);
+        
+        if ($recipient->fcm_token) {
+            $firebase->sendToDevice(
+                $recipient->fcm_token,
+                'New Message from ' . auth()->user()->name,
+                $request->message,
+                [
+                    'type' => 'new_message',
+                    'sender_id' => (string) auth()->id(),
+                    'message_id' => (string) $message->id,
+                    'chat_id' => (string) $message->chat_id
+                ]
+            );
+        }
+        
+        return response()->json(['message' => 'Message sent']);
+    }
+}
+
+2. SEND NOTIFICATION TO ALL USERS (ADMIN BROADCAST)
+------------------------------------------------------------
+use App\Services\FirebaseService;
+
+class AdminController extends Controller
+{
+    public function broadcast(Request $request, FirebaseService $firebase)
+    {
+        $request->validate([
+            'title' => 'required',
+            'message' => 'required',
+        ]);
+        
+        $firebase->sendToAllUsers(
+            $request->title,
+            $request->message,
+            [
+                'type' => 'admin_broadcast',
+                'url' => $request->url ?? '',
+                'timestamp' => now()->toIso8601String()
+            ]
+        );
+        
+        return response()->json(['message' => 'Broadcast sent']);
+    }
+}
+
+3. SEND NOTIFICATION WHEN ORDER STATUS CHANGES
+------------------------------------------------------------
+use App\Services\FirebaseService;
+
+class OrderController extends Controller
+{
+    public function updateStatus($orderId, FirebaseService $firebase)
+    {
+        $order = Order::find($orderId);
+        $order->status = 'shipped';
+        $order->save();
+        
+        $user = $order->user;
+        
+        if ($user->fcm_token) {
+            $firebase->sendToDevice(
+                $user->fcm_token,
+                'Order Update',
+                'Your order #' . $order->id . ' has been shipped!',
+                [
+                    'type' => 'order_update',
+                    'order_id' => (string) $order->id,
+                    'status' => 'shipped',
+                    'tracking_number' => $order->tracking_number
+                ]
+            );
+        }
+    }
+}
+
+4. SCHEDULE NOTIFICATION (USING LARAVEL JOBS)
+------------------------------------------------------------
+php artisan make:job SendPushNotification
+
+<?php
+
+namespace App\Jobs;
+
+use App\Services\FirebaseService;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
+class SendPushNotification implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $fcmToken;
+    protected $title;
+    protected $body;
+    protected $data;
+
+    public function __construct($fcmToken, $title, $body, $data = [])
+    {
+        $this->fcmToken = $fcmToken;
+        $this->title = $title;
+        $this->body = $body;
+        $this->data = $data;
+    }
+
+    public function handle(FirebaseService $firebase)
+    {
+        $firebase->sendToDevice(
+            $this->fcmToken,
+            $this->title,
+            $this->body,
+            $this->data
+        );
+    }
+}
+
+// Usage:
+SendPushNotification::dispatch($user->fcm_token, 'Title', 'Body', ['key' => 'value']);
+
+// Delayed notification (send after 1 hour):
+SendPushNotification::dispatch($user->fcm_token, 'Title', 'Body')
+    ->delay(now()->addHour());
+
+══════════════════════════════════════════════════════════
+TESTING WITH POSTMAN (API ENDPOINTS)
+══════════════════════════════════════════════════════════
+
+1. SEND TO SPECIFIC USER
+------------------------------------------------------------
+POST http://your-domain.com/api/notifications/send-to-user
+
+Headers:
+Authorization: Bearer YOUR_API_TOKEN
+Content-Type: application/json
+
+Body:
+{
+  "user_id": 1,
+  "title": "Test Notification",
+  "body": "This is a test message",
+  "data": {
+    "type": "test",
+    "action": "open_screen"
+  }
+}
+
+2. SEND TO ALL USERS
+------------------------------------------------------------
+POST http://your-domain.com/api/notifications/send-to-all
+
+Headers:
+Authorization: Bearer YOUR_API_TOKEN
+Content-Type: application/json
+
+Body:
+{
+  "title": "Important Announcement",
+  "body": "New features available now!",
+  "data": {
+    "type": "announcement"
+  }
+}
+
+3. SEND TO MULTIPLE USERS
+------------------------------------------------------------
+POST http://your-domain.com/api/notifications/send-to-multiple
+
+Headers:
+Authorization: Bearer YOUR_API_TOKEN
+Content-Type: application/json
+
+Body:
+{
+  "user_ids": [1, 2, 3, 4],
+  "title": "Group Notification",
+  "body": "You have been added to a new group",
+  "data": {
+    "type": "group",
+    "group_id": "123"
+  }
+}
+
+══════════════════════════════════════════════════════════
+ERROR HANDLING & LOGGING
+══════════════════════════════════════════════════════════
+
+All errors are automatically logged in storage/logs/laravel.log
+
+Common errors:
+- Invalid FCM token → Remove from database
+- Token expired → User needs to login again
+- Access token expired → Automatically refreshed (cached 50 min)
+- Network error → Check Firebase Console status
+
+══════════════════════════════════════════════════════════
+BEST PRACTICES
+══════════════════════════════════════════════════════════
+
+✅ Store FCM tokens when user logs in
+✅ Update FCM token on every app launch
+✅ Remove invalid tokens from database
+✅ Use queued jobs for sending multiple notifications
+✅ Cache access token (done automatically in service)
+✅ Log all notification sends for debugging
+✅ Handle errors gracefully
+✅ Test with small groups before broadcasting
+
+══════════════════════════════════════════════════════════
+TROUBLESHOOTING
+══════════════════════════════════════════════════════════
+
+Error: "Failed to fetch access token"
+→ Check service account JSON path
+→ Verify file permissions
+
+Error: "Invalid project ID"
+→ Check .env FIREBASE_PROJECT_ID
+→ Verify it matches your Firebase project
+
+Error: "Token not valid"
+→ FCM token expired or invalid
+→ User needs to generate new token (re-login)
+
+══════════════════════════════════════════════════════════
+SECURITY CHECKLIST
+══════════════════════════════════════════════════════════
+
+✅ Service account JSON in storage/app (not public)
+✅ Added to .gitignore
+✅ API routes protected with authentication
+✅ Validate user permissions before sending
+✅ Rate limit notification endpoints
+✅ Never expose service account in client
+
+══════════════════════════════════════════════════════════
+
+🎉 Your Laravel backend is ready to send Firebase notifications!
+
+Test it now:
+1. Update .env with Firebase credentials
+2. Place service account JSON in storage/app/firebase/
+3. Run: php artisan config:cache
+4. Test with Postman using the API endpoints above
+

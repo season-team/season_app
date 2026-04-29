@@ -1,0 +1,38 @@
+{
+  "message": {
+    "token": "YOUR_DEVICE_FCM_TOKEN_HERE",
+    "data": {
+      "type": "safety_radius_alert",
+      "notification_type": "safety_radius_alert",
+      "group_id": "32",
+      "member_id": "29",
+      "member_name": "Fady Malak",
+      "is_admin": "true",
+      "is_owner": "true",
+      "for_admin": "true",
+      "distance": "150",
+      "safety_radius": "100",
+      "group_name": "Test Group",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "title": "🚨 Safety Alert",
+      "body": "Fady Malak is outside the safety radius!"
+    },
+    "android": {
+      "priority": "high"
+    },
+    "apns": {
+      "payload": {
+        "aps": {
+          "sound": "default",
+          "interruption-level": "critical",
+          "alert": {
+            "title": "🚨 Safety Alert",
+            "body": "Fady Malak is outside the safety radius!"
+          },
+          "badge": 1
+        }
+      }
+    }
+  }
+}
+

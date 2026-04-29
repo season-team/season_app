@@ -1,0 +1,26 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub/
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+android/.gradle/
+android/app/build/
+*.iml
+
+# VS Code
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
+
+# Generated
+*.log
+
+# Firebase sensitive files (NEVER COMMIT!)
+*firebase-adminsdk*.json
+google-services.json
+GoogleService-Info.plist
+firebase.json
