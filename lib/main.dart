@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -40,14 +41,15 @@ void main() async{
   // Initialize local storage service
   await LocalStorageService.init();
   
-  // Initialize Firebase and Notifications
-  try {
-    await FirebaseService.initialize();
-    
-    // Register background message handler
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  } catch (e) {
-    debugPrint('❌ Error initializing Firebase: $e');
+  // Initialize Firebase, remote config, and notifications
+  await FirebaseService.initialize();
+
+  if (!kIsWeb) {
+    try {
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    } catch (e) {
+      debugPrint('❌ Error registering background messaging: $e');
+    }
   }
 
   // Initialize background location service

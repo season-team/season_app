@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:season_app/core/router/routes.dart';
 import 'package:season_app/core/services/auth_service.dart';
+import 'package:season_app/core/services/notification_service.dart';
 
 /// Central place to clear session and send the user to [Routes.home] (guest shell / login entry).
 /// Registered from [routerProvider] with [clearDioTokens] so this file does not import [DioHelper]
@@ -26,6 +27,7 @@ class SessionExpiredNavigationService {
     if (_redirectInProgress || _router == null) return;
     _redirectInProgress = true;
     try {
+      await NotificationService().clearPushRegistration();
       await AuthService.logout();
       _clearDioTokens?.call();
       WidgetsBinding.instance.addPostFrameCallback((_) {

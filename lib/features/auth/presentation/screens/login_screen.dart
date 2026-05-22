@@ -6,7 +6,9 @@ import 'package:season_app/core/constants/app_assets.dart';
 import 'package:season_app/core/constants/app_colors.dart';
 import 'package:season_app/core/localization/generated/l10n.dart';
 import 'package:season_app/core/router/routes.dart';
+import 'package:season_app/core/services/auth_service.dart';
 import 'package:season_app/core/services/notification_service.dart';
+import 'package:season_app/core/services/google_login_flow.dart';
 import 'package:season_app/core/services/social_login_service.dart';
 import 'package:season_app/core/utils/validators.dart';
 import 'package:season_app/features/auth/presentation/widgets/social_login_buttons.dart';
@@ -56,11 +58,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Clear any existing groups data for the new user
         ref.read(groupsControllerProvider.notifier).clearAllData();
         
-        // Subscribe to notification topics after successful login
         try {
-          await NotificationService().subscribeToAllUsers();
+          await NotificationService().onUserLoggedIn(
+            userId: AuthService.getUserId(),
+          );
         } catch (e) {
-          debugPrint('Error subscribing to topics: $e');
+          debugPrint('Error setting up push notifications: $e');
         }
         
         if (context.mounted) {
@@ -160,8 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           onPressed: loginState.isLoading ? null : () async {
                             if (formKey.currentState!.validate()) {
                               // Get FCM token
-                              final fcmToken = await NotificationService().getSavedFCMToken() ?? 
-                                  NotificationService().fcmToken;
+                              final fcmToken = await NotificationService().getTokenForAuth();
                               
                               await ref.read(loginControllerProvider.notifier).login(
                                 email: ref.watch(loginEmailProvider),
@@ -174,46 +176,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         SocialLoginButtons(
                           onGooglePressed: () async {
+                            ref.read(loginControllerProvider.notifier).startSocialLogin();
                             try {
-                              // Get FCM token
-                              final fcmToken = await NotificationService().getSavedFCMToken() ?? 
-                                  NotificationService().fcmToken;
-                              
-                              // Sign in with Google
-                              final googleData = await SocialLoginService.signInWithGoogle();
-                              
-                              // Call backend login/register
-                              if (googleData['idToken'] != null && googleData['accessToken'] != null) {
-                                await ref.read(loginControllerProvider.notifier).loginWithGoogle(
-                                  idToken: googleData['idToken']!,
-                                  accessToken: googleData['accessToken']!,
+                              final fcmToken = await NotificationService().getTokenForAuth();
+                              final message = await GoogleLoginFlow.run(apiCall: (googleData) async {
+                                final idToken = googleData['idToken'];
+                                if (idToken == null || idToken.isEmpty) {
+                                  throw Exception('Failed to get Google credentials');
+                                }
+                                return ref.read(authRepositoryProvider).loginWithGoogle(
+                                  idToken: idToken,
+                                  accessToken: googleData['accessToken'] ?? '',
                                   notificationToken: fcmToken,
                                 );
-                              } else {
-                                SnackbarHelper.error(context, 'Failed to get Google credentials');
-                              }
+                              });
+                              ref.read(loginControllerProvider.notifier).completeSocialLogin(message);
                             } catch (e) {
-                              final errorMessage = e.toString();
-                              // On login screen, if user not found, suggest registration
-                              if (errorMessage.contains('404:') || 
-                                  errorMessage.toLowerCase().contains('not found') || 
+                              var errorMessage = e.toString().replaceAll('Exception: ', '');
+                              if (errorMessage.contains('404:') ||
+                                  errorMessage.toLowerCase().contains('not found') ||
                                   errorMessage.toLowerCase().contains('not registered')) {
-                                SnackbarHelper.error(
-                                  context, 
-                                  Localizations.localeOf(context).languageCode == 'ar'
-                                      ? 'المستخدم غير موجود. يرجى التسجيل أولاً'
-                                      : 'User not found. Please register first'
-                                );
-                              } else {
-                                SnackbarHelper.error(context, errorMessage.replaceAll('Exception: ', ''));
+                                errorMessage = Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'المستخدم غير موجود. يرجى التسجيل أولاً'
+                                    : 'User not found. Please register first';
                               }
+                              ref.read(loginControllerProvider.notifier).failSocialLogin(errorMessage);
                             }
                           },
                           onApplePressed: () async {
                             try {
                               // Get FCM token
-                              final fcmToken = await NotificationService().getSavedFCMToken() ?? 
-                                  NotificationService().fcmToken;
+                              final fcmToken = await NotificationService().getTokenForAuth();
                               
                               // Sign in with Apple
                               final appleData = await SocialLoginService.signInWithApple();

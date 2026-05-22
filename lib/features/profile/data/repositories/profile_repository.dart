@@ -56,5 +56,22 @@ class ProfileRepository {
       throw DioHelper.handleError(e);
     }
   }
+
+  Future<String> deleteAccount() async {
+    try {
+      final response = await remoteDataSource.deleteAccount();
+      final status = response.data is Map ? response.data['status'] : response.statusCode;
+      if (status == 200) {
+        return (response.data is Map ? response.data['message'] : null)?.toString() ??
+            'Account deleted successfully';
+      }
+      throw Exception(
+        (response.data is Map ? response.data['message'] : null)?.toString() ??
+            'Failed to delete account',
+      );
+    } catch (e) {
+      throw DioHelper.handleError(e);
+    }
+  }
 }
 

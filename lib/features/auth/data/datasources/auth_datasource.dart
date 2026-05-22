@@ -229,4 +229,15 @@ class AuthRemoteDataSource {
 
     return response;
   }
+
+  Future<Response> logoutUser() async {
+    return dio.post(ApiEndpoints.logout);
+  }
+
+  Future<Response> updateFcmToken(String fcmToken) async {
+    return dio.post(
+      ApiEndpoints.authProfile,
+      data: {'fcm_token': fcmToken, '_method': 'PUT'},
+    );
+  }
 }

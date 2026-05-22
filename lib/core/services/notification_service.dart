@@ -1,17 +1,28 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:season_app/core/constants/api_endpoints.dart';
+import 'package:season_app/core/services/auth_service.dart';
+import 'package:season_app/core/services/dio_client.dart';
+import 'package:season_app/core/services/notification_dedup.dart';
+import 'package:season_app/core/services/notification_navigation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+const MethodChannel _androidNotificationChannel =
+    MethodChannel('season_app/notifications');
 
 /// Background message handler - must be a top-level function
 /// This runs in a separate isolate when app is terminated
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Ensure Flutter bindings are initialized in the background isolate
-  // This is required for plugins to work in background isolate
+  // Android: AlarmNotificationService handles all FCM in native code.
+  if (Platform.isAndroid) return;
+
   WidgetsFlutterBinding.ensureInitialized();
   
   debugPrint('📩 Background Message Received (App Closed/Terminated)');
@@ -43,16 +54,22 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final isSafetyRadiusAlarm = message.data['type'] == 'safety_radius_alert' ||
       message.data['notification_type'] == 'safety_radius_alert';
   
-  // CRITICAL: Let native AlarmNotificationService handle safety_radius_alert
-  // The native service creates the channel with proper alarm sound and shows notification
-  // We skip handling it here to avoid conflicts and ensure alarm sound works
-  if (isSafetyRadiusAlarm) {
-    debugPrint('🚨 Safety radius alarm detected - letting native AlarmNotificationService handle it');
-    debugPrint('   Native service will show notification with alarm sound');
-    return; // Exit early - native service handles this
+  final isAdmin = message.data['is_admin'] == 'true' ||
+      message.data['is_owner'] == 'true' ||
+      message.data['for_admin'] == 'true';
+
+  if (isSafetyRadiusAlarm && isAdmin) {
+    final groupId = int.tryParse(message.data['group_id']?.toString() ?? '');
+    final memberId = int.tryParse(message.data['member_id']?.toString() ?? '');
+    if (groupId != null && memberId != null) {
+      final key = NotificationDedup.safetyRadiusKey(groupId, memberId);
+      if (!NotificationDedup.shouldShow(key)) return;
+    }
+    await _showBackgroundSafetyAlarm(flutterLocalNotifications, message);
+    return;
   }
-  
-  // Regular notifications continue below...
+
+  // Regular notifications (iOS background / data-only)
   if (message.notification != null) {
     // Regular notification
     const androidDetails = AndroidNotificationDetails(
@@ -140,24 +157,149 @@ Future<void> _createNotificationChannelsForBackground(
   }
 }
 
+Future<void> _showBackgroundSafetyAlarm(
+  FlutterLocalNotificationsPlugin plugin,
+  RemoteMessage message,
+) async {
+  const alarmChannel = AndroidNotificationChannel(
+    'safety_radius_alarm_channel',
+    'Safety Radius Alarms',
+    description: 'High-priority alarms when group members go out of safety radius',
+    importance: Importance.high,
+    playSound: true,
+    enableVibration: true,
+  );
+  await plugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(alarmChannel);
+
+  final title = message.data['title']?.toString() ?? '🚨 Safety Alert';
+  final body = message.data['body']?.toString() ??
+      'A group member is outside the safety radius!';
+  final groupId = int.tryParse(message.data['group_id']?.toString() ?? '');
+  final notificationId = groupId ?? message.hashCode;
+
+  const androidDetails = AndroidNotificationDetails(
+    'safety_radius_alarm_channel',
+    'Safety Radius Alarms',
+    channelDescription: 'Safety radius alarms',
+    importance: Importance.high,
+    priority: Priority.max,
+    playSound: true,
+    category: AndroidNotificationCategory.alarm,
+  );
+  const iosDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentSound: true,
+    interruptionLevel: InterruptionLevel.critical,
+  );
+  await plugin.show(
+    notificationId,
+    title,
+    body,
+    const NotificationDetails(android: androidDetails, iOS: iosDetails),
+    payload: jsonEncode(message.data),
+  );
+}
+
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  static bool get _pushSupported => !kIsWeb;
+
+  FirebaseMessaging? _firebaseMessaging;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
   String? _fcmToken;
   bool _isInitialized = false;
 
+  FirebaseMessaging get _messaging =>
+      _firebaseMessaging ??= FirebaseMessaging.instance;
+
   // Getters
   String? get fcmToken => _fcmToken;
   bool get isInitialized => _isInitialized;
 
+  /// FCM token for auth APIs; null on web (Firebase push is not configured).
+  Future<String?> getTokenForAuth() async {
+    if (!_pushSupported) return null;
+    await ensureInitialized();
+    if (_fcmToken == null) {
+      await _getFCMToken();
+    }
+    return await getSavedFCMToken() ?? fcmToken;
+  }
+
+  /// Ensures permissions, channels, and FCM token are ready.
+  Future<void> ensureInitialized() async {
+    if (!_pushSupported || _isInitialized) return;
+    try {
+      await initialize();
+    } catch (e) {
+      debugPrint('⚠️ Notification init failed in ensureInitialized: $e');
+    }
+  }
+
+  /// After login: topics + sync token to backend.
+  Future<void> onUserLoggedIn({String? userId}) async {
+    if (!_pushSupported) return;
+    await ensureInitialized();
+    await subscribeToAllUsers();
+    if (userId != null && userId.isNotEmpty) {
+      await subscribeToUserTopic(userId);
+    }
+    final token = fcmToken ?? await getSavedFCMToken();
+    if (token != null && token.isNotEmpty) {
+      await syncTokenToBackend(token);
+    }
+  }
+
+  /// On logout: unsubscribe topics, clear server token, delete local FCM token.
+  Future<void> clearPushRegistration() async {
+    if (!_pushSupported) return;
+    final userId = AuthService.getUserId();
+    try {
+      if (userId != null && userId.isNotEmpty) {
+        await unsubscribeFromUserTopic(userId);
+      }
+      await unsubscribeFromTopic('all_users');
+      if (AuthService.isLoggedIn()) {
+        await syncTokenToBackend('');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error clearing push registration: $e');
+    }
+    await deleteToken();
+  }
+
+  /// Sends FCM token to backend (empty string clears it on logout).
+  Future<void> syncTokenToBackend(String token) async {
+    if (!_pushSupported || !AuthService.isLoggedIn()) return;
+    try {
+      await DioHelper.instance.dio.post(
+        ApiEndpoints.authProfile,
+        data: {'fcm_token': token, '_method': 'PUT'},
+      );
+      debugPrint('✅ FCM token synced to backend');
+    } on DioException catch (e) {
+      debugPrint('⚠️ FCM token sync failed: ${e.response?.statusCode} ${e.message}');
+    } catch (e) {
+      debugPrint('⚠️ FCM token sync failed: $e');
+    }
+  }
+
   /// Initialize Firebase Messaging and Local Notifications
   Future<void> initialize() async {
+    if (!_pushSupported) {
+      _isInitialized = true;
+      debugPrint('🔔 Notification Service skipped on web');
+      return;
+    }
+
     if (_isInitialized) {
       debugPrint('🔔 Notification Service already initialized');
       return;
@@ -184,6 +326,9 @@ class NotificationService {
       _isInitialized = true;
       debugPrint('✅ Notification Service initialized successfully');
       debugPrint('🔑 FCM Token: $_fcmToken');
+
+      await _handleAndroidLaunchNotification();
+      await _handleTerminatedMessageTap();
     } catch (e) {
       debugPrint('❌ Error initializing Notification Service: $e');
       rethrow;
@@ -194,7 +339,7 @@ class NotificationService {
   Future<NotificationSettings> _requestPermissions() async {
     debugPrint('🔔 Requesting notification permissions...');
 
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+    NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -285,18 +430,18 @@ class NotificationService {
       
       if (Platform.isIOS) {
         // For iOS, get APNs token first
-        String? apnsToken = await _firebaseMessaging.getAPNSToken();
+        String? apnsToken = await _messaging.getAPNSToken();
         debugPrint('📱 APNs Token: $apnsToken');
         
         if (apnsToken == null) {
           debugPrint('⚠️ APNs token not available yet, will retry...');
           // Wait a bit and retry
           await Future.delayed(const Duration(seconds: 2));
-          apnsToken = await _firebaseMessaging.getAPNSToken();
+          apnsToken = await _messaging.getAPNSToken();
         }
       }
 
-      _fcmToken = await _firebaseMessaging.getToken();
+      _fcmToken = await _messaging.getToken();
       
       if (_fcmToken != null) {
         debugPrint('✅ FCM Token: $_fcmToken');
@@ -346,10 +491,22 @@ class NotificationService {
     // Handle background message tap (when app is in background)
     FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessageTap);
 
-    // Handle notification tap when app was terminated
-    _handleTerminatedMessageTap();
-
     debugPrint('✅ Message handlers configured');
+  }
+
+  Future<void> _handleAndroidLaunchNotification() async {
+    if (!Platform.isAndroid) return;
+    try {
+      final data = await _androidNotificationChannel
+          .invokeMapMethod<String, dynamic>('getLaunchNotificationData');
+      if (data != null && data.isNotEmpty) {
+        NotificationNavigationService.handle(
+          Map<String, dynamic>.from(data),
+        );
+      }
+    } catch (e) {
+      debugPrint('⚠️ Could not read Android launch notification: $e');
+    }
   }
 
   /// Handle foreground messages (when app is open)
@@ -377,19 +534,18 @@ class NotificationService {
                                message.data['member_id'] != null;
     
     if (isSafetyRadiusAlarm && isAdmin && hasRequiredFields) {
-      // CRITICAL: Cancel any existing notification from FCM that might not have sound
-      // This ensures our local notification with sound will be displayed
-      if (Platform.isAndroid) {
-        try {
-          // Cancel any notification that FCM might have auto-displayed
-          await _localNotifications.cancelAll();
-          debugPrint('🔄 Cancelled existing notifications to ensure alarm sound plays');
-        } catch (e) {
-          debugPrint('⚠️ Error cancelling notifications: $e');
-        }
+      final groupId = int.tryParse(message.data['group_id'].toString());
+      final memberId = int.tryParse(message.data['member_id'].toString());
+      if (groupId != null && memberId != null) {
+        final key = NotificationDedup.safetyRadiusKey(groupId, memberId);
+        if (!NotificationDedup.shouldShow(key)) return;
       }
-      
-      // Show alarm notification with system default sound
+
+      if (Platform.isAndroid) {
+        // Native AlarmNotificationService shows the alarm on Android.
+        return;
+      }
+
       await _showSafetyRadiusAlarm(
         title: message.notification?.title ?? message.data['title'] ?? '🚨 Safety Alert',
         body: message.notification?.body ?? message.data['body'] ?? 'A group member is outside the safety radius!',
@@ -399,10 +555,17 @@ class NotificationService {
             : message.hashCode,
       );
     } else if (message.notification != null) {
-      // Regular notification
       await _showLocalNotification(
         title: message.notification!.title ?? 'New Notification',
         body: message.notification!.body ?? '',
+        payload: jsonEncode(message.data),
+      );
+    } else if (message.data.isNotEmpty) {
+      await _showLocalNotification(
+        title: message.data['title']?.toString() ?? 'Season App',
+        body: message.data['body']?.toString() ??
+            message.data['message']?.toString() ??
+            '',
         payload: jsonEncode(message.data),
       );
     }
@@ -434,22 +597,9 @@ class NotificationService {
     }
   }
 
-  /// Handle notification action based on data
   void _handleNotificationAction(Map<String, dynamic> data) {
     debugPrint('🎯 Handling notification action with data: $data');
-
-    // TODO: Implement navigation or actions based on notification data
-    // Example:
-    // if (data.containsKey('type')) {
-    //   switch (data['type']) {
-    //     case 'message':
-    //       // Navigate to messages screen
-    //       break;
-    //     case 'order':
-    //       // Navigate to order details
-    //       break;
-    //   }
-    // }
+    NotificationNavigationService.handle(data);
   }
 
   /// Show local notification (for foreground messages)
@@ -580,20 +730,19 @@ class NotificationService {
 
   /// Setup token refresh listener
   void _setupTokenRefreshListener() {
-    _firebaseMessaging.onTokenRefresh.listen((newToken) {
+    _messaging.onTokenRefresh.listen((newToken) {
       debugPrint('🔄 FCM Token refreshed: $newToken');
       _fcmToken = newToken;
       _saveFCMToken(newToken);
-      
-      // TODO: Send updated token to your backend
-      // _sendTokenToBackend(newToken);
+      syncTokenToBackend(newToken);
     });
   }
 
   /// Delete FCM token (useful for logout)
   Future<void> deleteToken() async {
+    if (!_pushSupported) return;
     try {
-      await _firebaseMessaging.deleteToken();
+      await _messaging.deleteToken();
       _fcmToken = null;
       
       final prefs = await SharedPreferences.getInstance();
@@ -607,8 +756,9 @@ class NotificationService {
 
   /// Subscribe to a topic
   Future<void> subscribeToTopic(String topic) async {
+    if (!_pushSupported) return;
     try {
-      await _firebaseMessaging.subscribeToTopic(topic);
+      await _messaging.subscribeToTopic(topic);
       debugPrint('✅ Subscribed to topic: $topic');
     } catch (e) {
       debugPrint('❌ Error subscribing to topic: $e');
@@ -617,8 +767,9 @@ class NotificationService {
 
   /// Unsubscribe from a topic
   Future<void> unsubscribeFromTopic(String topic) async {
+    if (!_pushSupported) return;
     try {
-      await _firebaseMessaging.unsubscribeFromTopic(topic);
+      await _messaging.unsubscribeFromTopic(topic);
       debugPrint('✅ Unsubscribed from topic: $topic');
     } catch (e) {
       debugPrint('❌ Error unsubscribing from topic: $e');
@@ -627,13 +778,15 @@ class NotificationService {
 
   /// Get notification permission status
   Future<bool> isNotificationEnabled() async {
-    final settings = await _firebaseMessaging.getNotificationSettings();
+    if (!_pushSupported) return false;
+    final settings = await _messaging.getNotificationSettings();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
   }
 
   /// Request permission again (useful for settings screen)
   Future<bool> requestPermissionAgain() async {
+    if (!_pushSupported) return false;
     final settings = await _requestPermissions();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;

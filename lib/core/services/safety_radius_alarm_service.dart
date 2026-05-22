@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:season_app/features/groups/data/models/group_member_model.dart';
 import 'package:season_app/features/groups/data/models/group_model.dart';
 import 'package:season_app/core/services/auth_service.dart';
+import 'package:season_app/core/services/notification_dedup.dart';
 import 'package:season_app/core/constants/api_endpoints.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -226,10 +227,15 @@ class SafetyRadiusAlarmService {
   /// Trigger alarm notification with system default sound
   Future<void> _triggerAlarm(int groupId, GroupMemberModel member) async {
     try {
-      // Prevent duplicate alarms for the same member
       final alarmKey = '${groupId}_${member.id}';
       if (_activeAlarms.contains(alarmKey)) {
         debugPrint('⚠️ Alarm already active for member ${member.user.name}, skipping');
+        return;
+      }
+      if (!NotificationDedup.shouldShow(
+        NotificationDedup.safetyRadiusKey(groupId, member.id),
+      )) {
+        debugPrint('⚠️ Dedup: skipping duplicate safety alarm for ${member.user.name}');
         return;
       }
 

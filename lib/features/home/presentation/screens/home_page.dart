@@ -17,6 +17,7 @@ import 'package:season_app/features/home/providers.dart';
 import 'package:season_app/features/vendor/presentation/providers/vendor_providers.dart';
 import 'package:season_app/features/vendor/data/vendor_models.dart';
 import 'package:season_app/features/events/providers/events_providers.dart';
+import 'package:season_app/features/events/presentation/widgets/events_empty_placeholder.dart';
 import 'package:season_app/features/events/data/models/event_model.dart';
 import 'package:season_app/features/profile/presentation/screens/webview_screen.dart';
 import 'package:season_app/features/profile/providers.dart';
@@ -213,23 +214,10 @@ class HomePage extends ConsumerWidget {
               child: Center(child: CircularProgressIndicator()),
             ),
           ),
-          error: (e, s) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                e.toString(),
-                style: const TextStyle(color: AppColors.error),
-              ),
-            ),
-          ),
+          error: (e, s) => const EventsEmptyPlaceholder(),
           data: (eventsResponse) {
             if (eventsResponse.events.isEmpty) {
-              return const SizedBox.shrink();
+              return const EventsEmptyPlaceholder();
             }
 
             return SizedBox(

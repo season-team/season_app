@@ -8,6 +8,7 @@ import 'package:season_app/features/home/presentation/screens/home_page.dart';
 import 'package:season_app/features/home/presentation/screens/card_page.dart';
 import 'package:season_app/features/home/presentation/screens/group_page.dart';
 import 'package:season_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:season_app/core/services/notification_navigation_service.dart';
 import 'package:season_app/shared/providers/locale_provider.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
@@ -33,6 +34,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         }
       });
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationNavigationService.consumePending();
+    });
   }
 
   int? _getTabIndex(String tab) {

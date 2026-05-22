@@ -282,6 +282,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "days": MessageLookupByLibrary.simpleMessage("days"),
     "delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "deleteAccount": MessageLookupByLibrary.simpleMessage("Delete Account"),
+    "deleteAccountConfirmButton": MessageLookupByLibrary.simpleMessage(
+      "Yes, delete account",
+    ),
+    "deleteAccountConfirmation": MessageLookupByLibrary.simpleMessage(
+      "Are you sure you want to delete your account?",
+    ),
+    "deleteAccountFailure": MessageLookupByLibrary.simpleMessage(
+      "Could not delete account. Please try again.",
+    ),
+    "deleteAccountSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Permanently remove your account and all data",
+    ),
+    "deleteAccountSuccess": MessageLookupByLibrary.simpleMessage(
+      "Your account has been deleted successfully",
+    ),
     "deleteAccountWarning": MessageLookupByLibrary.simpleMessage(
       "This action cannot be undone. All your data will be permanently deleted.",
     ),
@@ -377,6 +392,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Error updating profile",
     ),
     "events": MessageLookupByLibrary.simpleMessage("Events"),
+    "eventsEmptyDescription": MessageLookupByLibrary.simpleMessage(
+      "We\'ll show events and activities in your area soon. Check back later.",
+    ),
+    "eventsEmptyTitle": MessageLookupByLibrary.simpleMessage(
+      "No events at the moment",
+    ),
     "exclusiveRewards": MessageLookupByLibrary.simpleMessage(
       "Get exclusive rewards",
     ),

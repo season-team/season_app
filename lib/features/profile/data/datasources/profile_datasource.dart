@@ -96,6 +96,8 @@ class ProfileRemoteDataSource {
     return response;
   }
 
-
+  Future<Response> deleteAccount() async {
+    return dio.delete(ApiEndpoints.deleteAccount);
+  }
 }
 

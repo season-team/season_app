@@ -24,3 +24,6 @@ android/app/build/
 google-services.json
 GoogleService-Info.plist
 firebase.json
+
+# Optional local dart-defines (copy from dart_defines.json.example)
+dart_defines.json

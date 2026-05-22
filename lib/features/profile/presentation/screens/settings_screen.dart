@@ -6,6 +6,7 @@ import 'package:season_app/core/constants/app_colors.dart';
 import 'package:season_app/core/localization/generated/l10n.dart';
 import 'package:season_app/core/router/routes.dart';
 import 'package:season_app/core/services/app_state_service.dart';
+import 'package:season_app/features/profile/presentation/widgets/delete_account_button.dart';
 import 'package:season_app/shared/providers/locale_provider.dart';
 import 'package:season_app/shared/widgets/custom_toast.dart';
 
@@ -138,6 +139,10 @@ class SettingsScreen extends ConsumerWidget {
                   
                   // Logout Button
                   _buildLogoutButton(context, ref, loc),
+                  
+                  const SizedBox(height: 12),
+                  
+                  const DeleteAccountButton(),
                   
                   const SizedBox(height: 32),
                 ],

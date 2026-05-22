@@ -66,6 +66,23 @@ class LoginController extends StateNotifier<LoginState> {
     state = state.copyWith(message: null);
   }
 
+  void startSocialLogin() {
+    state = state.copyWith(isLoading: true, error: null, message: null);
+  }
+
+  void completeSocialLogin(String message) {
+    state = state.copyWith(
+      isLoading: false,
+      error: null,
+      message: message,
+      isLoggedIn: true,
+    );
+  }
+
+  void failSocialLogin(String error) {
+    state = state.copyWith(isLoading: false, error: error, isLoggedIn: false);
+  }
+
   /// Login with Google
   Future<void> loginWithGoogle({
     required String idToken,

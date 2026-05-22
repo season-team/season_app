@@ -17,6 +17,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "season_app/maps"
     private val LOCATION_SERVICE_CHANNEL = "season_app/location_service"
+    private val NOTIFICATION_CHANNEL = "season_app/notifications"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,15 @@ class MainActivity : FlutterActivity() {
         // Create alarm notification channel with system alarm sound
         createAlarmNotificationChannel()
         
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NOTIFICATION_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getLaunchNotificationData" -> {
+                    result.success(extractNotificationDataFromIntent(intent))
+                }
+                else -> result.notImplemented()
+            }
+        }
+
         // Location service method channel
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LOCATION_SERVICE_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
@@ -97,6 +107,22 @@ class MainActivity : FlutterActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+
+    private fun extractNotificationDataFromIntent(intent: Intent?): Map<String, String> {
+        val data = mutableMapOf<String, String>()
+        val extras = intent?.extras ?: return data
+        for (key in extras.keySet()) {
+            val value = extras.get(key)?.toString() ?: continue
+            if (key == "google.message_id" || key == "google.c.sender.id") continue
+            data[key] = value
+        }
+        return data
     }
 
     private fun launchGoogleMaps(latitude: Double, longitude: Double, result: MethodChannel.Result) {

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:season_app/core/services/auth_service.dart';
 import 'package:season_app/core/services/dio_client.dart';
 import 'package:season_app/core/services/background_location_service.dart';
+import 'package:season_app/core/services/notification_service.dart';
 import 'package:season_app/features/auth/data/datasources/auth_datasource.dart';
 
 class AuthRepository {
@@ -328,8 +329,13 @@ class AuthRepository {
 
   // Logout method
   Future<void> logout() async {
+    try {
+      await remoteDataSource.logoutUser();
+    } catch (_) {
+      // Continue local cleanup even if API logout fails
+    }
+    await NotificationService().clearPushRegistration();
     await AuthService.logout();
-    // Clear token from DioHelper
     DioHelper.instance.clearTokens();
   }
 

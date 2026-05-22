@@ -292,6 +292,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "days": MessageLookupByLibrary.simpleMessage("أيام"),
     "delete": MessageLookupByLibrary.simpleMessage("حذف"),
     "deleteAccount": MessageLookupByLibrary.simpleMessage("حذف الحساب"),
+    "deleteAccountConfirmButton": MessageLookupByLibrary.simpleMessage(
+      "نعم، احذف الحساب",
+    ),
+    "deleteAccountConfirmation": MessageLookupByLibrary.simpleMessage(
+      "هل أنت متأكد أنك تريد حذف حسابك؟",
+    ),
+    "deleteAccountFailure": MessageLookupByLibrary.simpleMessage(
+      "تعذر حذف الحساب. حاول مرة أخرى.",
+    ),
+    "deleteAccountSubtitle": MessageLookupByLibrary.simpleMessage(
+      "حذف حسابك وبياناتك نهائياً",
+    ),
+    "deleteAccountSuccess": MessageLookupByLibrary.simpleMessage(
+      "تم حذف حسابك بنجاح",
+    ),
     "deleteAccountWarning": MessageLookupByLibrary.simpleMessage(
       "لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بياناتك نهائياً.",
     ),
@@ -377,6 +392,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "خطأ في تحديث الملف الشخصي",
     ),
     "events": MessageLookupByLibrary.simpleMessage("الفعاليات"),
+    "eventsEmptyDescription": MessageLookupByLibrary.simpleMessage(
+      "سنُعرض الفعاليات والأنشطة في منطقتك قريباً. تابعنا لاحقاً.",
+    ),
+    "eventsEmptyTitle": MessageLookupByLibrary.simpleMessage(
+      "لا توجد فعاليات حالياً",
+    ),
     "exclusiveRewards": MessageLookupByLibrary.simpleMessage(
       "أحصل علي مكافآت حصرية",
     ),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:season_app/core/services/auth_service.dart';
 import 'package:season_app/core/services/dio_client.dart';
+import 'package:season_app/core/services/notification_service.dart';
 import 'package:season_app/core/services/safety_radius_alarm_service.dart';
 import 'package:season_app/core/services/background_location_service.dart';
 import 'package:season_app/features/groups/providers.dart';
@@ -14,6 +15,8 @@ class AppStateService {
       
       // Stop background location tracking
       await stopBackgroundLocationTracking();
+
+      await NotificationService().clearPushRegistration();
       
       // Clear authentication data
       await AuthService.logout();

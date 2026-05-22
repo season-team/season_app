@@ -39,6 +39,7 @@ import 'package:season_app/features/geographical_guides/presentation/screens/geo
 import 'package:season_app/features/auth/presentation/screens/connection_error_screen.dart';
 import 'package:season_app/core/services/app_config_service.dart';
 import 'package:season_app/core/services/dio_client.dart';
+import 'package:season_app/core/services/notification_navigation_service.dart';
 import 'package:season_app/core/services/session_expired_navigation_service.dart';
 import 'package:season_app/features/home/presentation/screens/bag_detail_screen.dart';
 import 'package:season_app/features/home/presentation/screens/bag_analysis_screen.dart';
@@ -355,5 +356,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     router: router,
     clearDioTokens: () => DioHelper.instance.clearTokens(),
   );
+  NotificationNavigationService.register(router);
   return router;
 });

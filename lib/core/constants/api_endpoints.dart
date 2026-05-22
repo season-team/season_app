@@ -21,6 +21,7 @@ class ApiEndpoints {
   // 👤 Profile
   static const String profile = '/profile';
   static const String updateProfile = '/profile';
+  static const String deleteAccount = '/profile/delete-account';
   static const String userQr = '/user/qr';
 
   // 🏠 Home

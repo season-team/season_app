@@ -92,6 +92,11 @@
   "version": "الإصدار",
   "account": "الحساب",
   "deleteAccount": "حذف الحساب",
+  "deleteAccountSubtitle": "حذف حسابك وبياناتك نهائياً",
+  "deleteAccountConfirmation": "هل أنت متأكد أنك تريد حذف حسابك؟",
+  "deleteAccountSuccess": "تم حذف حسابك بنجاح",
+  "deleteAccountConfirmButton": "نعم، احذف الحساب",
+  "deleteAccountFailure": "تعذر حذف الحساب. حاول مرة أخرى.",
   "languageChanged": "تم تغيير اللغة بنجاح",
   "general": "عام",
   "preferences": "التفضيلات",
@@ -344,6 +349,8 @@
   ,"noCategoriesAvailable":"لا توجد تصنيفات متاحة"
   ,"noAppsAvailable":"لا توجد تطبيقات متاحة"
   ,"events":"الفعاليات"
+  ,"eventsEmptyTitle":"لا توجد فعاليات حالياً"
+  ,"eventsEmptyDescription":"سنُعرض الفعاليات والأنشطة في منطقتك قريباً. تابعنا لاحقاً."
   ,"yourLoyaltyPoints":"نقاط الولاء الخاصة بك"
   ,"availablePoints":"نقطة متاحة"
   ,"redeemSoon":"استبدل قريبًا"

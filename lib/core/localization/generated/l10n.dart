@@ -729,6 +729,56 @@ class AppLocalizations {
     );
   }
 
+  /// `Permanently remove your account and all data`
+  String get deleteAccountSubtitle {
+    return Intl.message(
+      'Permanently remove your account and all data',
+      name: 'deleteAccountSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete your account?`
+  String get deleteAccountConfirmation {
+    return Intl.message(
+      'Are you sure you want to delete your account?',
+      name: 'deleteAccountConfirmation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your account has been deleted successfully`
+  String get deleteAccountSuccess {
+    return Intl.message(
+      'Your account has been deleted successfully',
+      name: 'deleteAccountSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes, delete account`
+  String get deleteAccountConfirmButton {
+    return Intl.message(
+      'Yes, delete account',
+      name: 'deleteAccountConfirmButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not delete account. Please try again.`
+  String get deleteAccountFailure {
+    return Intl.message(
+      'Could not delete account. Please try again.',
+      name: 'deleteAccountFailure',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Language changed successfully`
   String get languageChanged {
     return Intl.message(
@@ -2812,6 +2862,26 @@ class AppLocalizations {
   /// `Events`
   String get events {
     return Intl.message('Events', name: 'events', desc: '', args: []);
+  }
+
+  /// `No events at the moment`
+  String get eventsEmptyTitle {
+    return Intl.message(
+      'No events at the moment',
+      name: 'eventsEmptyTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We'll show events and activities in your area soon. Check back later.`
+  String get eventsEmptyDescription {
+    return Intl.message(
+      'We\'ll show events and activities in your area soon. Check back later.',
+      name: 'eventsEmptyDescription',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Your Loyalty Points`
