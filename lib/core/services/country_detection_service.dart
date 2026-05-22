@@ -39,9 +39,8 @@ class CountryDetectionService {
       }
     }
 
-    // Default fallback
-    print('⚠️ All APIs failed, using default: SAU');
-    return 'SAU'; // Default to Saudi Arabia
+    print('⚠️ All country APIs failed');
+    return null;
   }
 
   /// Try ipinfo.io API (better rate limits)

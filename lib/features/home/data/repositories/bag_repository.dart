@@ -1,3 +1,4 @@
+import 'package:season_app/core/utils/timezone_helper.dart';
 import 'package:season_app/features/home/data/datasources/bag_remote_datasource.dart';
 import 'package:season_app/features/home/data/models/ai_category_model.dart';
 import 'package:season_app/features/home/data/models/ai_item_model.dart';
@@ -209,13 +210,16 @@ class BagRepository {
     required String date,
     required String time,
     String? timezone,
-  }) =>
-      remoteDataSource.setTravelDate(
-        bagTypeId: bagTypeId,
-        date: date,
-        time: time,
-        timezone: timezone,
-      );
+  }) async {
+    final resolvedTimezone =
+        timezone ?? await TimezoneHelper.getDeviceTimezone();
+    return remoteDataSource.setTravelDate(
+      bagTypeId: bagTypeId,
+      date: date,
+      time: time,
+      timezone: resolvedTimezone,
+    );
+  }
 
   Future<Map<String, dynamic>> getBagReminder({
     required int bagTypeId,

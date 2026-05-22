@@ -467,7 +467,7 @@ class BagRemoteDataSource {
         'bag_type_id': bagTypeId,
         'date': date,
         'time': time,
-        'timezone': timezone ?? 'Africa/Cairo', // Default to Africa/Cairo if not provided
+        'timezone': timezone,
       },
     );
     return response.data['data'] as Map<String, dynamic>;
