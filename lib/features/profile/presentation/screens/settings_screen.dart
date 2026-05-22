@@ -128,7 +128,7 @@ class SettingsScreen extends ConsumerWidget {
                     title: loc.contactUs,
                     subtitle: loc.contactUsSubtitle,
                     trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-                    onTap: () => _contactViaWhatsApp(context, loc),
+                    onTap: () => _showContactSupportOptions(context, loc),
                   ),
                   
                   const SizedBox(height: 24),
@@ -494,41 +494,198 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _contactViaWhatsApp(BuildContext context, AppLocalizations loc) async {
-    const phoneNumber = '+201287952795';
-    const name = 'Fady Malak';
-    final isRtl = Localizations.localeOf(context).languageCode == 'ar';
-    
-    final message = isRtl
-        ? 'مرحباً $name، أريد الإبلاغ عن مشكلة في التطبيق:'
-        : 'Hello $name, I want to report an issue in the app:';
-    
-    final encodedMessage = Uri.encodeComponent(message);
-    final whatsappUrl = 'https://wa.me/$phoneNumber?text=$encodedMessage';
-    
+  void _showContactSupportOptions(BuildContext context, AppLocalizations loc) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              loc.contactSupportTitle,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Cairo',
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 20),
+            _contactOptionTile(
+              isArabic: isArabic,
+              icon: Icons.email_outlined,
+              title: loc.contactViaEmail,
+              subtitle: loc.contactEmailAddress,
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _openSupportEmail(context, loc, isArabic);
+              },
+            ),
+            const SizedBox(height: 12),
+            _contactOptionTile(
+              isArabic: isArabic,
+              icon: Icons.chat,
+              title: loc.contactViaWhatsApp,
+              subtitle: 'WhatsApp',
+              iconColor: const Color(0xFF25D366),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _openSupportWhatsApp(context, loc, isArabic);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _contactOptionTile({
+    required bool isArabic,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.border),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: (iconColor ?? AppColors.primary).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor ?? AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Cairo',
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Cairo',
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                isArabic ? Icons.chevron_left : Icons.chevron_right,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _whatsappSupportUrl(bool isArabic) {
+    const phone = '201031115768';
+    final text = isArabic
+        ? 'مرحبا !\nاريد التواصل بخصوص Season App'
+        : 'Hello!\nI would like to contact you regarding Season App';
+    return 'https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(text)}';
+  }
+
+  Future<void> _openSupportEmail(
+    BuildContext context,
+    AppLocalizations loc,
+    bool isArabic,
+  ) async {
+    final subject = isArabic ? 'Season App - دعم فني' : 'Season App - Support';
+    final body = isArabic
+        ? 'مرحباً،\n\nأريد التواصل بخصوص Season App.\n\n'
+        : 'Hello,\n\nI would like to contact you regarding Season App.\n\n';
+
+    final uri = Uri(
+      scheme: 'mailto',
+      path: loc.contactEmailAddress,
+      query: _encodeQuery({
+        'subject': subject,
+        'body': body,
+      }),
+    );
+
     try {
-      final uri = Uri.parse(whatsappUrl);
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      
-      if (!launched) {
-        if (context.mounted) {
-          CustomToast.error(
-            context,
-            loc.whatsappNotInstalled,
-          );
-        }
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && context.mounted) {
+        CustomToast.error(context, loc.emailAppNotAvailable);
       }
     } catch (e) {
       if (context.mounted) {
-        CustomToast.error(
-          context,
-          loc.whatsappNotInstalled,
-        );
+        CustomToast.error(context, loc.emailAppNotAvailable);
       }
     }
+  }
+
+  Future<void> _openSupportWhatsApp(
+    BuildContext context,
+    AppLocalizations loc,
+    bool isArabic,
+  ) async {
+    try {
+      final uri = Uri.parse(_whatsappSupportUrl(isArabic));
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && context.mounted) {
+        CustomToast.error(context, loc.whatsappNotInstalled);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        CustomToast.error(context, loc.whatsappNotInstalled);
+      }
+    }
+  }
+
+  static String? _encodeQuery(Map<String, String> params) {
+    return params.entries
+        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
   }
 
 }

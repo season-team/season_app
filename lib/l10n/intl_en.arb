@@ -385,6 +385,11 @@
   "support":"Support",
   "contactUs":"Contact Us",
   "reportIssue":"Report an Issue",
-  "contactUsSubtitle":"Report problems or contact support via WhatsApp",
-  "whatsappNotInstalled":"WhatsApp is not installed on your device"
+  "contactUsSubtitle":"Contact support via email or WhatsApp",
+  "contactSupportTitle":"Choose how to contact us",
+  "contactViaEmail":"Contact via email",
+  "contactViaWhatsApp":"Contact via WhatsApp",
+  "contactEmailAddress":"support@seasonksa.com",
+  "whatsappNotInstalled":"WhatsApp is not installed on your device",
+  "emailAppNotAvailable":"Could not open email app"
 }

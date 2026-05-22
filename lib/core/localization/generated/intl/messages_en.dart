@@ -232,9 +232,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionFailed": MessageLookupByLibrary.simpleMessage(
       "Connection failed. Please try again later.",
     ),
+    "contactEmailAddress": MessageLookupByLibrary.simpleMessage(
+      "support@seasonksa.com",
+    ),
+    "contactSupportTitle": MessageLookupByLibrary.simpleMessage(
+      "Choose how to contact us",
+    ),
     "contactUs": MessageLookupByLibrary.simpleMessage("Contact Us"),
     "contactUsSubtitle": MessageLookupByLibrary.simpleMessage(
-      "Report problems or contact support via WhatsApp",
+      "Contact support via email or WhatsApp",
+    ),
+    "contactViaEmail": MessageLookupByLibrary.simpleMessage(
+      "Contact via email",
+    ),
+    "contactViaWhatsApp": MessageLookupByLibrary.simpleMessage(
+      "Contact via WhatsApp",
     ),
     "copied": MessageLookupByLibrary.simpleMessage("Copied!"),
     "copy": MessageLookupByLibrary.simpleMessage("Copy"),
@@ -332,6 +344,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "editProfile": MessageLookupByLibrary.simpleMessage("Edit Profile"),
     "editService": MessageLookupByLibrary.simpleMessage("Edit Service"),
     "email": MessageLookupByLibrary.simpleMessage("Email"),
+    "emailAppNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "Could not open email app",
+    ),
     "emailNotifications": MessageLookupByLibrary.simpleMessage(
       "Email Notifications",
     ),

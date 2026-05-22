@@ -382,6 +382,11 @@
   ,"support":"الدعم الفني"
   ,"contactUs":"تواصل معي"
   ,"reportIssue":"الإبلاغ عن مشكلة"
-  ,"contactUsSubtitle":"أبلغ عن المشاكل أو تواصل مع الدعم عبر واتساب"
+  ,"contactUsSubtitle":"تواصل مع الدعم عبر البريد أو واتساب"
+  ,"contactSupportTitle":"اختر طريقة التواصل"
+  ,"contactViaEmail":"تواصل عن طريق إرسال إيميل"
+  ,"contactViaWhatsApp":"تواصل عبر واتساب"
+  ,"contactEmailAddress":"support@seasonksa.com"
   ,"whatsappNotInstalled":"واتساب غير مثبت على جهازك"
+  ,"emailAppNotAvailable":"تعذر فتح تطبيق البريد"
 }

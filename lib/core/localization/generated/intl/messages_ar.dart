@@ -244,9 +244,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionFailed": MessageLookupByLibrary.simpleMessage(
       "فشل الاتصال. يرجى المحاولة مرة أخرى لاحقاً.",
     ),
+    "contactEmailAddress": MessageLookupByLibrary.simpleMessage(
+      "support@seasonksa.com",
+    ),
+    "contactSupportTitle": MessageLookupByLibrary.simpleMessage(
+      "اختر طريقة التواصل",
+    ),
     "contactUs": MessageLookupByLibrary.simpleMessage("تواصل معي"),
     "contactUsSubtitle": MessageLookupByLibrary.simpleMessage(
-      "أبلغ عن المشاكل أو تواصل مع الدعم عبر واتساب",
+      "تواصل مع الدعم عبر البريد أو واتساب",
+    ),
+    "contactViaEmail": MessageLookupByLibrary.simpleMessage(
+      "تواصل عن طريق إرسال إيميل",
+    ),
+    "contactViaWhatsApp": MessageLookupByLibrary.simpleMessage(
+      "تواصل عبر واتساب",
     ),
     "copied": MessageLookupByLibrary.simpleMessage("تم النسخ!"),
     "copy": MessageLookupByLibrary.simpleMessage("نسخ"),
@@ -336,6 +348,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "editProfile": MessageLookupByLibrary.simpleMessage("تعديل الملف الشخصي"),
     "editService": MessageLookupByLibrary.simpleMessage("تعديل الخدمة"),
     "email": MessageLookupByLibrary.simpleMessage("البريد الالكتروني"),
+    "emailAppNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "تعذر فتح تطبيق البريد",
+    ),
     "emailNotifications": MessageLookupByLibrary.simpleMessage(
       "إشعارات البريد الإلكتروني",
     ),

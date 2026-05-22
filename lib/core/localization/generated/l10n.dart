@@ -3083,11 +3083,51 @@ class AppLocalizations {
     );
   }
 
-  /// `Report problems or contact support via WhatsApp`
+  /// `Contact support via email or WhatsApp`
   String get contactUsSubtitle {
     return Intl.message(
-      'Report problems or contact support via WhatsApp',
+      'Contact support via email or WhatsApp',
       name: 'contactUsSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose how to contact us`
+  String get contactSupportTitle {
+    return Intl.message(
+      'Choose how to contact us',
+      name: 'contactSupportTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact via email`
+  String get contactViaEmail {
+    return Intl.message(
+      'Contact via email',
+      name: 'contactViaEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact via WhatsApp`
+  String get contactViaWhatsApp {
+    return Intl.message(
+      'Contact via WhatsApp',
+      name: 'contactViaWhatsApp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `support@seasonksa.com`
+  String get contactEmailAddress {
+    return Intl.message(
+      'support@seasonksa.com',
+      name: 'contactEmailAddress',
       desc: '',
       args: [],
     );
@@ -3098,6 +3138,16 @@ class AppLocalizations {
     return Intl.message(
       'WhatsApp is not installed on your device',
       name: 'whatsappNotInstalled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not open email app`
+  String get emailAppNotAvailable {
+    return Intl.message(
+      'Could not open email app',
+      name: 'emailAppNotAvailable',
       desc: '',
       args: [],
     );
